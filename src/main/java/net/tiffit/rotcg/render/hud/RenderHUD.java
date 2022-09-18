@@ -2,15 +2,12 @@ package net.tiffit.rotcg.render.hud;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.rotcg.Rotcg;
-
-import java.util.Arrays;
 
 @Mod.EventBusSubscriber
 public class RenderHUD {
@@ -19,6 +16,7 @@ public class RenderHUD {
     public static final String FOOD = "food_level";
     public static final String EXPERIENCE = "experience_bar";
     public static final String HOTBAR = "hotbar";
+    public static final String ARMOR = "armor_level";
 
     @SubscribeEvent
     public static void renderHUD(RenderGuiOverlayEvent e){
@@ -37,10 +35,9 @@ public class RenderHUD {
         String overlayType = e.getOverlay().id().getPath();
         if(e instanceof RenderGuiOverlayEvent.Pre){
             switch (overlayType) {
-                case HEALTH, FOOD, EXPERIENCE, HOTBAR -> e.setCanceled(true);
+                case HEALTH, FOOD, EXPERIENCE, HOTBAR, ARMOR -> e.setCanceled(true);
             }
         }
-
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
         int scaledWidth = e.getWindow().getGuiScaledWidth();
@@ -55,10 +52,11 @@ public class RenderHUD {
 //        }
         if(!inGame)return;
         GameObjectState state = net.map.getSelfState();
-        if(e instanceof RenderGuiOverlayEvent.Pre){
+        if(e instanceof RenderGuiOverlayEvent.Pre pre){
             switch (overlayType) {
                 case HEALTH, FOOD, EXPERIENCE -> HUDBars.render(e, overlayType, state, scaledWidth, scaledHeight, mc, font);
                 case HOTBAR -> HUDHotbar.render(e, state, scaledWidth, scaledHeight, mc, font);
+                case ARMOR -> HUDMinimap.render(e, pre.getPoseStack(), state, scaledWidth, scaledHeight, mc, font);
             }
         }
 //        if(elementType == RenderGameOverlayEvent.ElementType.HOTBAR){

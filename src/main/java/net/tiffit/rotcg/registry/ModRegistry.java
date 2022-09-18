@@ -83,6 +83,9 @@ public class ModRegistry {
         event.register(KeybindingManager.TOGGLE_ALLY_SHOOT = new KeyMapping("Toggle Ally Shoot", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, category));
         event.register(KeybindingManager.USE_ABILITY = new KeyMapping("Use Ability", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, category));
 
+        event.register(KeybindingManager.MINIMAP_ZOOM_IN = new KeyMapping("Zoom In", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_EQUAL, category));
+        event.register(KeybindingManager.MINIMAP_ZOOM_OUT = new KeyMapping("Zoom Out", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, category));
+
     }
 
 }

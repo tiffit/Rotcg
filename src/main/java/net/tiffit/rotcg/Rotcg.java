@@ -24,6 +24,7 @@ import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.LangLoader;
 import net.tiffit.rotcg.registry.ModRegistry;
+import net.tiffit.rotcg.render.hud.map.Minimap;
 import net.tiffit.rotcg.util.WorldUtils;
 import org.slf4j.Logger;
 
@@ -43,6 +44,7 @@ public class Rotcg {
     public static RealmNetworker ACTIVE_CONNECTION;
     public static ServerPlayer SERVER_PLAYER;
     public static RotcgConfig CONFIG;
+    public static Minimap MAP;
 
     public static AccessToken TOKEN;
     public static ConnectionAddress ADDRESS;

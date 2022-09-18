@@ -14,6 +14,7 @@ import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.out.ChangeAllyShootPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UsePortalPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
+import net.tiffit.rotcg.render.hud.HUDMinimap;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class KeybindingManager {
@@ -21,6 +22,9 @@ public class KeybindingManager {
     public static KeyMapping INTERACT;
     public static KeyMapping TOGGLE_ALLY_SHOOT;
     public static KeyMapping USE_ABILITY;
+
+    public static KeyMapping MINIMAP_ZOOM_OUT;
+    public static KeyMapping MINIMAP_ZOOM_IN;
 
     @SubscribeEvent
     public static void onKeyboardPress(InputEvent.Key e){
@@ -62,6 +66,17 @@ public class KeybindingManager {
                 case ON_COOLDOWN -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "On Cooldown"), true);
                 case NO_ABILITY -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_RED + "No Ability Equipped"), true);
             }
+        }
+        if(net != null && Rotcg.MAP != null) {
+            int zoomOffset = 0;
+            if (MINIMAP_ZOOM_OUT.isDown()) {
+                zoomOffset += 5;
+            } else if (MINIMAP_ZOOM_IN.isDown()) {
+                zoomOffset -= 5;
+            }
+            HUDMinimap.VIEW_RANGE += zoomOffset;
+            if(HUDMinimap.VIEW_RANGE < 5)HUDMinimap.VIEW_RANGE = 5;
+            else if(HUDMinimap.VIEW_RANGE*2 >= net.map.getWidth())HUDMinimap.VIEW_RANGE = net.map.getWidth()/2;
         }
     }
 
