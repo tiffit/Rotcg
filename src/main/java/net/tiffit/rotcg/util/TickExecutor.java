@@ -3,10 +3,9 @@ package net.tiffit.rotcg.util;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.rotcg.Rotcg;
-import net.tiffit.rotcg.registry.entity.RotcgEntity;
+import net.tiffit.rotcg.render.effect.RotMGEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Mod.EventBusSubscriber
 public class TickExecutor {
 
-    //private static ArrayList<RotMGEffect> TRACKED_EFFECTS = new ArrayList<>();
+    private static ArrayList<RotMGEffect> TRACKED_EFFECTS = new ArrayList<>();
 
     private static LinkedBlockingQueue<Runnable> TASKS = new LinkedBlockingQueue<>();
     private static LinkedBlockingQueue<Runnable> TASKS_UPDATE = new LinkedBlockingQueue<>();
@@ -70,15 +69,15 @@ public class TickExecutor {
             TASKS_RENDER.drainTo(tasks);
             for(Runnable run : tasks)run.run();
 
-//            List<RotMGEffect> removals = new ArrayList<>();
-//            for(RotMGEffect effect : TRACKED_EFFECTS){
-//                effect.onTick();
-//                if(effect.duration * 1000 + effect.createTime <= System.currentTimeMillis()){
-//                    effect.onDestroy();
-//                    removals.add(effect);
-//                }
-//            }
-//            TRACKED_EFFECTS.removeAll(removals);
+            List<RotMGEffect> removals = new ArrayList<>();
+            for(RotMGEffect effect : TRACKED_EFFECTS){
+                effect.onTick();
+                if(effect.duration * 1000 + effect.createTime <= System.currentTimeMillis()){
+                    effect.onDestroy();
+                    removals.add(effect);
+                }
+            }
+            TRACKED_EFFECTS.removeAll(removals);
         }
     }
 
@@ -97,12 +96,12 @@ public class TickExecutor {
         }
     }
 
-//    public static void trackEffect(RotMGEffect effect) {
-//        addRender(() -> {
-//            if(effect.duration > 0)TRACKED_EFFECTS.add(effect);
-//            effect.onCreate();
-//        });
-//    }
+    public static void trackEffect(RotMGEffect effect) {
+        addRender(() -> {
+            if(effect.duration > 0)TRACKED_EFFECTS.add(effect);
+            effect.onCreate();
+        });
+    }
 
     public static void onUpdateLoop() {
         ArrayList<Runnable> tasks = new ArrayList<>();
@@ -111,7 +110,7 @@ public class TickExecutor {
     }
 
     public static void clear() {
-        //TRACKED_EFFECTS.clear();
+        TRACKED_EFFECTS.clear();
         TASKS_RENDER.clear();
         TASKS.clear();
         TASKS_UPDATE.clear();

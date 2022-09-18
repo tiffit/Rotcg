@@ -6,13 +6,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.RegistryObject;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
@@ -67,14 +67,12 @@ public class ModRegistry {
     @SuppressWarnings("unchecked")
     private static <T extends Entity> RegistryObject<EntityType<T>> registerEntity(EntityType.EntityFactory<T> factory, String name, double width, double height){
         final String nameToUse = "go_" + name;
-        RegistryObject<EntityType<T>> registry = ENTITIES.register(nameToUse, () -> {
-            return EntityType.Builder.of(factory, MobCategory.MISC)
-                    .sized((float) width, (float) height)
-                    .noSummon()
-                    .noSave()
-                    .clientTrackingRange(1000)
-                    .build(nameToUse);
-        });
+        RegistryObject<EntityType<T>> registry = ENTITIES.register(nameToUse, () -> EntityType.Builder.of(factory, MobCategory.MISC)
+                .sized((float) width, (float) height)
+                .noSummon()
+                .noSave()
+                .clientTrackingRange(1000)
+                .build(nameToUse));
         return registry;
     }
 
@@ -83,6 +81,8 @@ public class ModRegistry {
         String category = "Realm of the Craft God";
         event.register(KeybindingManager.INTERACT = new KeyMapping("Interact", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, category));
         event.register(KeybindingManager.TOGGLE_ALLY_SHOOT = new KeyMapping("Toggle Ally Shoot", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, category));
+        event.register(KeybindingManager.USE_ABILITY = new KeyMapping("Use Ability", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, category));
+
     }
 
 }

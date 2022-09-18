@@ -26,10 +26,12 @@ import net.tiffit.realmnetapi.util.LangLoader;
 import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.util.WorldUtils;
 import org.slf4j.Logger;
+
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Mod(Rotcg.MODID)
 public class Rotcg {
@@ -79,6 +81,7 @@ public class Rotcg {
                 ex.printStackTrace();
             }
         }
+        XMLLoader.buildIdMap();
 
         if(!new File("./assets/models").exists()){
             generateModels();

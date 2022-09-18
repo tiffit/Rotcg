@@ -2,12 +2,9 @@ package net.tiffit.rotcg;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -47,15 +44,19 @@ import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.RealmNetworker;
+import net.tiffit.realmnetapi.net.packet.in.AoePacketIn;
 import net.tiffit.realmnetapi.net.packet.in.ReconnectPacketIn;
+import net.tiffit.realmnetapi.net.packet.in.ShowEffectPacketIn;
 import net.tiffit.realmnetapi.net.packet.in.TextPacketIn;
-import net.tiffit.realmnetapi.net.packet.out.PlayerTextPacketOut;
 import net.tiffit.realmnetapi.util.LangLoader;
+import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.registry.GroundBlock;
 import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.registry.entity.ProjectileEntityContainer;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.registry.entity.RotcgEntityContainer;
+import net.tiffit.rotcg.render.effect.AoeEffect;
+import net.tiffit.rotcg.render.effect.RotMGEffect;
 import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.util.ObjectEntityTypeMapping;
@@ -187,6 +188,27 @@ public class EventListener {
             }
             return new IObjectListener.EmptyObjectListener(rObject);
         };
+
+        EventHandler.addListener(ShowEffectEvent.class, showEffectEvent -> {
+            ShowEffectPacketIn packet = showEffectEvent.packet();
+            RotMGEffect.VisualEffect effect = RotMGEffect.VisualEffect.byId(packet.effectType);
+            if (effect.effectClass != null) {
+                try {
+                    RotMGEffect reffect = effect.effectClass.getConstructor(int.class, Vec2f.class, Vec2f.class, int.class, double.class)
+                            .newInstance(packet.targetObjectId, packet.start, packet.end, packet.color, packet.duration);
+                    TickExecutor.trackEffect(reffect);
+                } catch (ReflectiveOperationException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        EventHandler.addListener(AoeEvent.class, aoeEvent -> {
+            AoePacketIn packet = aoeEvent.packet();
+            AoeEffect effect = new AoeEffect(0, packet.pos, new Vec2f(packet.radius, 0), packet.color, packet.duration);
+            TickExecutor.trackEffect(effect);
+        });
+
         Hooks.ProjectileListener = ProjectileEntityContainer::new;
 
         System.out.println("Connecting to " + Rotcg.ADDRESS);
@@ -242,7 +264,7 @@ public class EventListener {
                         bps *= ground.speed;
                     }
                     double mcSpeed = bps / 4.3478f;
-                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.1 * mcSpeed * 0.7);
+                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.1 * mcSpeed);
                 }
                 if(updateInventory && e.side == LogicalSide.SERVER){ //Held Item
                     Inventory inv = player.getInventory();
@@ -323,7 +345,7 @@ public class EventListener {
         if(e.getMessage().startsWith(":")) {
             String text = e.getMessage().substring(":".length());
             e.setCanceled(true);
-            Rotcg.ACTIVE_CONNECTION.send(new PlayerTextPacketOut(text));
+            Rotcg.ACTIVE_CONNECTION.controller.sendChatMessage(text);
         }
     }
 
