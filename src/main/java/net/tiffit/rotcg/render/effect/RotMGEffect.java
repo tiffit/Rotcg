@@ -26,14 +26,14 @@ public abstract class RotMGEffect {
 
     public enum VisualEffect {
         UNKNOWN_EFFECT_TYPE(0),
-        HEAL_EFFECT_TYPE(1),
+        HEAL_EFFECT_TYPE(1, HealEffect.class),
         TELEPORT_EFFECT_TYPE(2),
         STREAM_EFFECT_TYPE(3),
         THROW_EFFECT_TYPE(4, ThrownEffect.class),
         NOVA_EFFECT_TYPE(5),
         POISON_EFFECT_TYPE(6),
         LINE_EFFECT_TYPE(7),
-        BURST_EFFECT_TYPE(8),
+        BURST_EFFECT_TYPE(8, BurstEffect.class),
         FLOW_EFFECT_TYPE(9),
         RING_EFFECT_TYPE(10),
         LIGHTNING_EFFECT_TYPE(11),

@@ -13,17 +13,15 @@ public class ObjectEntityTypeMapping {
 
     static {
         addMapping(() -> WallEntity.TYPE.get(), "Wall", "ConnectedWall", "CaveWall");
-//        addMapping(() -> ConnectedWallEntity.TYPE, "ConnectedWall", "CaveWall");
         addMapping(() -> MerchantEntity.TYPE.get(), "Merchant");
         addMapping(() -> PortalEntity.TYPE.get(), Constants.CLASSES_PORTAL);
         addMapping(() -> PlayerEntity.TYPE.get(), "Player");
         addMapping(() -> GameObjectEntity.TYPE.get(), "GameObject", "ClosedVaultChest", "ClosedGiftChest",
                 "NameChanger", "CharacterChanger", "MoneyChanger",
                 "GuildBoard", "GuildRegister", "GuildChronicle", "Pet", "ReskinVendor", "MysteryBoxGround", "YardUpgrader", "PetUpgrader",
-                "Container", "Summon");
+                "Container", "Summon", "Blacksmith Inv Object", "VaultContainer", "VaultGiftContainer", "PremiumVaultContainer", "Blacksmith Magic Anvil", "Blacksmith");
         addMapping(() -> CharacterEntity.TYPE.get(), "Character");
         addMapping(() -> WallOfFameEntity.TYPE.get(), "WallOfFame");
-//        addMapping(() -> ContainerEntity.TYPE, "Container", "OneWayContainer");
     }
 
 

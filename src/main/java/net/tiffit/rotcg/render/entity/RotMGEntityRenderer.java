@@ -1,15 +1,12 @@
 package net.tiffit.rotcg.render.entity;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -18,32 +15,24 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.tiffit.realmnetapi.assets.OBJModel;
 import net.tiffit.realmnetapi.assets.spritesheet.SheetReference;
-import net.tiffit.realmnetapi.assets.spritesheet.Spritesheet;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.assets.xml.Texture;
-import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.realmnetapi.util.math.Vec3f;
 import net.tiffit.rotcg.Rotcg;
-import net.tiffit.rotcg.pack.RotCGPack;
 import net.tiffit.rotcg.registry.GroundBlock;
-import net.tiffit.rotcg.registry.entity.PlayerEntity;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.render.RenderUtils;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Random;
 
 public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityRenderer<T> {
 
@@ -188,7 +177,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         if(state.hasStat(StatType.SIZE))size = state.getStat(StatType.SIZE);
         float scaleVal = size / 100F;
         if(size > 0){
-            BufferedImage img = SheetReference.getSprite(texture.toSpriteLocation());
+            BufferedImage img = texture.animated ? SheetReference.getAnimatedSprite(texture.toSpriteLocation()) : SheetReference.getSprite(texture.toSpriteLocation());
             if(img != null)scaleVal *= img.getWidth() / 8.0f;
             scaleVal = getScaleValue(scaleVal);
             if(go.drawOnGround){
@@ -197,6 +186,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
             }
             stack.scale(scaleVal, scaleVal, scaleVal);
         }
+
         return scaleVal;
     }
 

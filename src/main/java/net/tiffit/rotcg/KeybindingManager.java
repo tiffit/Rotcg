@@ -47,7 +47,7 @@ public class KeybindingManager {
                 mc.gui.setOverlayMessage(Component.literal(ChatFormatting.GOLD + (net.showAllyShots ? "Enabled ally shots" : "Disabled ally shots")), true);
             }
         }
-        if(USE_ABILITY.isDown()){
+        if(USE_ABILITY.consumeClick()){
             if(net == null || !net.connected)return;
 
             double maxDistance = 10;
@@ -65,7 +65,10 @@ public class KeybindingManager {
             switch (result){
                 case ON_COOLDOWN -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "On Cooldown"), true);
                 case NO_ABILITY -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_RED + "No Ability Equipped"), true);
+                case NOT_ENOUGH_MANA -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Not Enough Mana"), true);
+                case SILENCED -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Silenced"), true);
             }
+            USE_ABILITY.setDown(false);
         }
         if(net != null && Rotcg.MAP != null) {
             int zoomOffset = 0;
