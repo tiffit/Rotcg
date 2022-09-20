@@ -186,11 +186,9 @@ public class EventListener {
         Hooks.ObjectListener = rObject -> {
             GameObject go = rObject.getGameObject();
             if(ObjectEntityTypeMapping.MAP.containsKey(go.goClass)){
-                RotcgEntityContainer container = new RotcgEntityContainer(rObject);
-                return container;
-            }else{
-                Rotcg.LOGGER.warn("Unknown object-class " + go.goClass + "; id: " + go.id);
+                return new RotcgEntityContainer(rObject);
             }
+            Rotcg.LOGGER.warn("Unknown object-class " + go.goClass + "; id: " + go.id);
             return new IObjectListener.EmptyObjectListener(rObject);
         };
 

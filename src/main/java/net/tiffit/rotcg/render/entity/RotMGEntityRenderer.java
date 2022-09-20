@@ -18,6 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.tiffit.realmnetapi.assets.OBJModel;
+import net.tiffit.realmnetapi.assets.spritesheet.AnimMap;
+import net.tiffit.realmnetapi.assets.spritesheet.AnimSpriteDefinition;
 import net.tiffit.realmnetapi.assets.spritesheet.SheetReference;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
@@ -27,12 +29,14 @@ import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.realmnetapi.util.math.Vec3f;
 import net.tiffit.rotcg.Rotcg;
+import net.tiffit.rotcg.pack.RotCGPack;
 import net.tiffit.rotcg.registry.GroundBlock;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.render.RenderUtils;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityRenderer<T> {
 
@@ -53,7 +57,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         if(!go.model.isEmpty()){
             OBJModel model = OBJModel.getModel(go.model);
             if(model == null){
-                System.out.println("Unknown model " + go.model);
+                //System.out.println("Unknown model " + go.model);
             }else{
                 doRenderModel(entity, yaw, partialTicks, go, state, model, stack, buffer, packedLight);
             }
@@ -80,7 +84,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         setupModel(entity, go, state, model, stack);
         stack.pushPose();
         RenderType type = isWallOfFame ? RenderUtils.ENTITY_TRANSLUCENT_TRIANGLES.apply(new ResourceLocation(Rotcg.MODID, "textures/walloffame.png"), true) :
-                RenderUtils.ENTITY_TRANSLUCENT_TRIANGLES.apply(new ResourceLocation(Rotcg.MODID, "textures/gameobject/" + state.type + "_0.png"), true);
+                RenderUtils.ENTITY_TRANSLUCENT_TRIANGLES.apply(RotCGPack.textToRlFull(entity.animationManager.getTexture()), true);
         VertexConsumer builder = buffer.getBuffer(type);
         PoseStack.Pose entry = stack.last();
         Matrix4f matrix4f = entry.pose();
@@ -122,7 +126,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
             stack.popPose();
             return 0;
         }
-        Texture texture = goTexture.texture.get(0);
+        Texture texture = entity.animationManager.getTexture();
         if(texture.file.equals("invisible")){
             stack.popPose();
             return 0;
@@ -133,7 +137,41 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
             return scale;
         }
 
-        RenderType type = RenderType.entityTranslucent(entity.animationManager.getTexture());
+        RenderType type = null;
+
+        if(texture.animated){
+            Vec2f playerPos = Rotcg.ACTIVE_CONNECTION.map.getPlayerPos().getPos();
+            Vec2f diff = playerPos.sub(state.position);
+            float angle = (float) Math.toDegrees(Math.atan2(diff.x(), diff.y()));
+            angle -= entity.getYHeadRot();
+            angle += 360*2;
+            angle += 45;
+            angle %= 360;
+            int directionAmount = (int)(angle / 90);
+            int direction = 0;
+            boolean flip = false;
+            switch (directionAmount){
+                case 0 -> direction = AnimMap.DIRECTION_DOWN;
+                case 1 -> {
+                    direction = AnimMap.DIRECTION_SIDE;
+                    flip = true;
+                }
+                case 2 -> direction = AnimMap.DIRECTION_UP;
+                case 3 -> direction = AnimMap.DIRECTION_SIDE;
+            }
+            List<AnimSpriteDefinition> list = SheetReference.getAnimatedSprites(texture.toSpriteLocation()).getDefinition(AnimMap.ACTION_IDLE, direction);
+            if(!list.isEmpty()){
+                AnimSpriteDefinition asd = list.get(0);
+                type = RenderType.entityTranslucent(RotCGPack.animRl(texture.toSpriteLocation(), asd.action, asd.direction));
+            }
+            if(flip){
+                stack.scale(-1, 1, 1);
+            }
+        }
+        if(type == null){
+            type = RenderType.entityTranslucent(RotCGPack.textToRlFull(texture));
+        }
+        
         VertexConsumer builder = buffer.getBuffer(type);
         PoseStack.Pose entry = stack.last();
         Matrix4f matrix4f = entry.pose();

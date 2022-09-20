@@ -1,12 +1,11 @@
 package net.tiffit.rotcg.registry.entity;
 
-import net.minecraft.resources.ResourceLocation;
 import net.tiffit.realmnetapi.assets.xml.Animation;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.assets.xml.Texture;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.net.RealmNetworker;
-import net.tiffit.rotcg.Rotcg;
 
 import java.util.Map;
 
@@ -24,12 +23,7 @@ public class RAnimationManager {
         this.obj = obj;
         this.textureObj = obj.getGameObject();
         if(!textureObj.defaultSkin.isEmpty()){
-            for (GameObject object : XMLLoader.OBJECTS.values()) {
-                if(textureObj.defaultSkin.equals(object.id)){
-                    textureObj = object;
-                    break;
-                }
-            }
+            textureObj = XMLLoader.ID_TO_OBJECT.get(textureObj.defaultSkin);
         }
         this.entity = entity;
         Map<String, Animation> animations = textureObj.animations;
@@ -37,11 +31,11 @@ public class RAnimationManager {
             setAnimation(animations.get(""));
         }
     }
-    public ResourceLocation getTexture(){
+    public Texture getTexture(){
         if(inAnimation()){
-            return new ResourceLocation(Rotcg.MODID, "textures/gameobject/" + textureObj.type + "_a" + current.index + "_" + currentFrame +  ".png");
+            return frame.texture;
         }
-        return new ResourceLocation(Rotcg.MODID, "textures/gameobject/" + textureObj.type + "_0.png");
+        return textureObj.texture.get(0);
     }
 
     public void update(){
@@ -66,6 +60,10 @@ public class RAnimationManager {
                     setFrame((currentFrame + 1) % current.frames.size());
                 }
             }
+        }
+        if(textureObj.texture.get(0).animated){
+            Texture tex = textureObj.texture.get(0);
+
         }
     }
     public void setAnimation(Animation animation){

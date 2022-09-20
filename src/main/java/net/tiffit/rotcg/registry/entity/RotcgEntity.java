@@ -10,12 +10,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fluids.FluidType;
-import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
+import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.Rotcg;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,6 +84,15 @@ public abstract class RotcgEntity extends LivingEntity{
             animationManager.update();
         }
         super.tick();
+    }
+
+    public void move(Vec2f pos){
+        Vec2f diff = new Vec2f((float) getX(), (float) getZ()).sub(pos);
+        if(diff.distanceSqr(Vec2f.ZERO) < 0.1)return;
+        setYHeadRot((float) Math.toDegrees(Math.atan2(diff.x(), -diff.y())));
+        setYBodyRot(yHeadRot);
+        setYRot(yHeadRot);
+        moveTo(pos.x(), 65, pos.y());
     }
 
     @Override

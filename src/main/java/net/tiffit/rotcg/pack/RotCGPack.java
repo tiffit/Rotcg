@@ -8,14 +8,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.tiffit.realmnetapi.assets.spritesheet.AnimSpriteDefinition;
 import net.tiffit.realmnetapi.assets.spritesheet.SheetReference;
 import net.tiffit.realmnetapi.assets.spritesheet.SpriteLocation;
-import net.tiffit.realmnetapi.assets.xml.*;
+import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.assets.xml.Ground;
+import net.tiffit.realmnetapi.assets.xml.Texture;
+import net.tiffit.realmnetapi.util.math.Vec2i;
 import net.tiffit.rotcg.Rotcg;
-import net.tiffit.rotcg.registry.ModRegistry;
-import net.tiffit.rotcg.registry.EquipmentItem;
 import net.tiffit.rotcg.registry.GroundBlock;
-import net.tiffit.rotcg.registry.WallBlock;
+import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +32,7 @@ import java.util.function.Predicate;
 public class RotCGPack implements PackResources, Serializable {
 
     private static Gson GSON = new GsonBuilder().create();
-    public static RotCGResourceLocation WHITE = new RotCGResourceLocation(Rotcg.MODID, "textures/white.png");
+    public static RotCGResourceLocation WHITE = new RotCGResourceLocation("textures/white.png");
     public HashMap<RotCGResourceLocation, byte[]> resources = new HashMap<>();
 
     public RotCGPack(){
@@ -115,149 +117,81 @@ public class RotCGPack implements PackResources, Serializable {
         }
         {//Block
             ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
-                GroundBlock block = blockRegistry.get();
+                Ground ground = blockRegistry.get().ground;
                 for(int i = 0; i <= 16; i++) {
                     JsonObject obj = new JsonObject();
                     obj.addProperty("parent", "block/cube_all");
 
                     JsonObject textures = new JsonObject();
-                    if(i < block.ground.textures.size()){
-                        textures.addProperty("all", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_" + i);
-                    }else{
-                        textures.addProperty("all", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_0");
-                    }
+                    Texture texture = i < ground.textures.size() ? ground.textures.get(i) : ground.textures.get(0);
+                    textures.addProperty("all", textToRl(texture).toString());
                     obj.add("textures", textures);
                     resources.put(new RotCGResourceLocation("models/block/" + blockRegistry.getId().getPath() + "_" + i + ".json"), obj.toString().getBytes());
                 }
             });
             ModRegistry.R_WALLS.values().forEach(blockRegistry -> {
                 JsonObject obj = new JsonObject();
+                GameObject go = blockRegistry.get().go;
                 obj.addProperty("parent", "block/cube_top");
 
                 JsonObject textures = new JsonObject();
-                textures.addProperty("side", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_side");
-                textures.addProperty("top", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_top");
+                Texture side = go.texture.get(0);
+                textures.addProperty("side", textToRl(side).toString());
+                textures.addProperty("top", textToRl(go.textureTop == null ? side : go.textureTop).toString());
                 obj.add("textures", textures);
                 resources.put(new RotCGResourceLocation("models/block/" + blockRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
         }
-        {//Block Texture
-            ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
-                GroundBlock block = blockRegistry.get();
-                Ground ground = block.ground;
-                if(ground.textures.size() > 0) {
-                    for(int i = 0; i < ground.textures.size(); i++) {
-                        Texture texture = ground.textures.get(i);
-                        BufferedImage img;
-                        if(texture.index == 0xff && texture.file.equals("lofiEnvironment")){
-                            img = blackImg;
-                        }else{
-                            SpriteLocation location = texture.toSpriteLocation();
-                            img = SheetReference.getSprite(location);
-                            if(img.getWidth() == 10 && img.getHeight() == 10){
-                                img = img.getSubimage(1, 1, 8, 8);
-                            }
-                        }
-                        resources.put(new RotCGResourceLocation("textures/block/" + blockRegistry.getId().getPath() + "_" + i + ".png"), imageToArray(img));
-                    }
-                }
-            });
-            ModRegistry.R_WALLS.values().forEach(blockRegistry -> {
-                WallBlock block = blockRegistry.get();
-                GameObject go = block.go;
-                if(go.texture.size() > 0) {
-                    Texture sideTexture = go.texture.get(0);
-                    Texture topTexture = go.textureTop;
-                    SpriteLocation locationSide = sideTexture.toSpriteLocation();
-                    SpriteLocation locationTop = topTexture == null ? locationSide : topTexture.toSpriteLocation();
-                    if(locationSide != null) {
-                        BufferedImage sideImg = SheetReference.getSprite(locationSide);
-                        if(sideImg.getWidth() == 10 && sideImg.getHeight() == 10){
-                            sideImg = sideImg.getSubimage(1, 1, 8, 8);
-                        }
-                        resources.put(new RotCGResourceLocation("textures/block/" + blockRegistry.getId().getPath() + "_side.png"), imageToArray(sideImg));
-
-                        BufferedImage topImg = locationTop == null ? sideImg : SheetReference.getSprite(locationTop);
-                        if(topImg.getWidth() == 10 && topImg.getHeight() == 10){
-                            topImg = topImg.getSubimage(1, 1, 8, 8);
-                        }
-                        resources.put(new RotCGResourceLocation("textures/block/" + blockRegistry.getId().getPath() + "_top.png"), imageToArray(topImg));
-                    }else if (!sideTexture.file.equals("invisible")) {
-                        System.out.println("Unknown image file: " + sideTexture.file);
-                    }
-                }
-            });
-        }
         {//Item: Equipment
             ModRegistry.R_EQUIPMENT.values().forEach(itemRegistry -> {
+                GameObject go = itemRegistry.get().go;
                 JsonObject obj = new JsonObject();
                 obj.addProperty("parent", "item/generated");
 
                 JsonObject textures = new JsonObject();
-                textures.addProperty("layer0", Rotcg.MODID + ":item/" + itemRegistry.getId().getPath());
+
+                textures.addProperty("layer0", textToRl(go.texture.get(0)).toString());
                 obj.add("textures", textures);
                 resources.put(new RotCGResourceLocation("models/item/" + itemRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
         }
-        {//Item: Equipment | Texture
-            ModRegistry.R_EQUIPMENT.values().forEach(itemRegistry -> {
-                EquipmentItem item = itemRegistry.get();
-                GameObject go = item.go;
-                if(go.texture.size() >= 1) {
-                    Texture texture = go.texture.get(0);
-                    SpriteLocation location = texture.toSpriteLocation();
-                    BufferedImage img = SheetReference.getSprite(location);
-                    if(img == null){
-                        img = SheetReference.getAnimatedSprite(location);
-                    }
-                    if(img != null) {
-                        resources.put(new RotCGResourceLocation("textures/item/" + itemRegistry.getId().getPath() + ".png"), imageToArray(img));
-                    }else if (!texture.file.equals("invisible")) {
-                        System.out.println("Unknown location: " + location + " for " + go.id);
-                    }
+
+        // Regular Sprites
+        for (SpriteLocation loc : SheetReference.getSpriteLocations()) {
+            BufferedImage img = SheetReference.getSprite(loc);
+            if(img != null){
+                if(img.getWidth() == 10 && img.getHeight() == 10){
+                    img = img.getSubimage(1, 1, 8, 8);
                 }
-            });
+                resources.put(new RotCGResourceLocation("textures/" + loc.spritesheet.toLowerCase() + "_" + loc.index + ".png"), imageToArray(img));
+            }
         }
-//        {//GameObjects
-            XMLLoader.OBJECTS.values().forEach(go -> {
-                if(go.goClass.equals("Equipment"))return;
-                if(go.texture.size() > 0) {
-                    for(int i = 0; i < go.texture.size(); i++) {
-                        Texture texture = go.texture.get(i);
-                        SpriteLocation location = texture.toSpriteLocation();
-                        BufferedImage img = SheetReference.getSprite(location);
-                        if(img == null){
-                            img = SheetReference.getAnimatedSprite(location);
+        // Animated Sprites
+        for (SpriteLocation loc : SheetReference.getAnimatedSpriteLocations()) {
+            Map<Vec2i, List<AnimSpriteDefinition>> map = SheetReference.getAnimatedSprites(loc).getMap();
+            for (Map.Entry<Vec2i, List<AnimSpriteDefinition>> entry : map.entrySet()) {
+                int action = entry.getKey().x();
+                int direction = entry.getKey().y();
+                for (int i = 0; i < entry.getValue().size(); i++) {
+                    AnimSpriteDefinition def = entry.getValue().get(i);
+                    BufferedImage img = SheetReference.getSprite(def.spriteData);
+                    if(img != null){
+                        StringBuilder path = new StringBuilder("textures/a_");
+                        path.append(loc.spritesheet.toLowerCase()).append("_");
+                        path.append(loc.index);
+                        if(action != 0 || direction != 0){
+                            path.append("_").append(action).append("_").append(direction);
                         }
-                        if (img != null) {
-                            resources.put(new RotCGResourceLocation("textures/gameobject/" + go.type + "_" + i + ".png"), imageToArray(img));
-                        } else if (!texture.file.equals("invisible")) {
-                            System.out.println("Unknown image file: " + texture.file);
-                        }
+                        path.append(".png");
+                        resources.put(new RotCGResourceLocation(path.toString()), imageToArray(img));
                     }
                 }
-                if(go.animations.size() > 0){
-                    int aIndex = 0;
-                    for (Animation animation : go.animations.values()) {
-                        for (int i = 0; i < animation.frames.size(); i++) {
-                            Animation.AnimationFrame frame = animation.frames.get(i);
-                            Texture texture = frame.texture;
-                            SpriteLocation location = texture.toSpriteLocation();
-                            BufferedImage img = SheetReference.getSprite(location);
-                            if(img == null){
-                                img = SheetReference.getAnimatedSprite(location);
-                            }
-                            if (img != null) {
-                                resources.put(new RotCGResourceLocation("textures/gameobject/" + go.type + "_a" + aIndex + "_" + i +  ".png"), imageToArray(img));
-                            } else if (!texture.file.equals("invisible")) {
-                                System.out.println("Unknown image file: " + texture.file);
-                            }
-                        }
-                        aIndex++;
-                    }
-                }
-            });
-//        }
+            }
+            BufferedImage img = SheetReference.getAnimatedSprite(loc);
+            if(img != null){
+                resources.put(new RotCGResourceLocation("textures/a_" + loc.spritesheet.toLowerCase() + "_" + loc.index + ".png"), imageToArray(img));
+            }
+        }
 //        try {
 //            loadSounds();
 //        } catch (Exception e) {
@@ -398,5 +332,24 @@ public class RotCGPack implements PackResources, Serializable {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public static RotCGResourceLocation textToRl(Texture texture){
+        return new RotCGResourceLocation((texture.animated ? "a_" : "") + texture.file.toLowerCase() + "_" + texture.index);
+    }
+
+    public static RotCGResourceLocation textToRlFull(Texture texture){
+        return new RotCGResourceLocation("textures/" + textToRl(texture).getPath() + ".png");
+    }
+
+    public static RotCGResourceLocation animRl(SpriteLocation loc, int action, int direction){
+        StringBuilder path = new StringBuilder("textures/a_");
+        path.append(loc.spritesheet.toLowerCase()).append("_");
+        path.append(loc.index);
+        if(action != 0 || direction != 0){
+            path.append("_").append(action).append("_").append(direction);
+        }
+        path.append(".png");
+        return new RotCGResourceLocation(path.toString());
     }
 }

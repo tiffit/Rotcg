@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.tiffit.realmnetapi.map.projectile.ProjectileState;
 import net.tiffit.realmnetapi.util.math.Vec2f;
-import net.tiffit.rotcg.Rotcg;
+import net.tiffit.rotcg.pack.RotCGPack;
 import net.tiffit.rotcg.registry.entity.ProjectileEntity;
 
 public class ProjectileEntityRenderer extends EntityRenderer<ProjectileEntity> {
@@ -36,7 +36,7 @@ public class ProjectileEntityRenderer extends EntityRenderer<ProjectileEntity> {
         stack.translate(vec.x(), 0, vec.y());
         stack.mulPose(Vector3f.YP.rotationDegrees((float)-Math.toDegrees(state.angle) - 45 * angleCorrection + 180));
         stack.scale(0.7f, 0.7f, 0.7f);
-        RenderType type = RenderType.entityTranslucent(new ResourceLocation(Rotcg.MODID, "textures/gameobject/" + state.obj.type + "_0.png"));
+        RenderType type = RenderType.entityTranslucent(RotCGPack.textToRlFull(state.obj.texture.get(0)));
         stack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         VertexConsumer ivertexbuilder = buffer.getBuffer(type);
         PoseStack.Pose matrixstack$entry = stack.last();

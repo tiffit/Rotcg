@@ -1,7 +1,6 @@
 package net.tiffit.rotcg.registry.entity;
 
 import net.minecraft.world.entity.Entity;
-import net.tiffit.realmnetapi.api.IObjectListener;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.util.math.Vec2f;
@@ -46,6 +45,6 @@ public class RotcgEntityContainer extends McEntityContainer<RObject, RotcgEntity
 
     @Override
     protected void teleport(Vec2f pos) {
-        entity.teleportTo(pos.x(), 65, pos.y());
+        entity.move(pos);
     }
 }
