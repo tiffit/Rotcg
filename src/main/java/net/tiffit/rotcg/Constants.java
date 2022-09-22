@@ -5,4 +5,5 @@ public class Constants {
     public static final double MAX_MOVE_SPEED = 0.0096;
 
     public static String[] CLASSES_PORTAL = new String[]{"Portal", "GuildHallPortal", "ArenaPortal"};
+    public static String[] CLASSES_CONTAINER = new String[]{"Container"};
 }

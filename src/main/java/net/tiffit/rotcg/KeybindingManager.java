@@ -3,6 +3,7 @@ package net.tiffit.rotcg;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.InputEvent;
@@ -10,11 +11,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.tiffit.realmnetapi.api.PlayerController;
 import net.tiffit.realmnetapi.map.object.RObject;
+import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.out.ChangeAllyShootPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UsePortalPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.render.hud.HUDMinimap;
+import net.tiffit.rotcg.screen.MenuScreen;
+import net.tiffit.rotcg.screen.slot.RContainerScreen;
+import net.tiffit.rotcg.util.TickExecutor;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class KeybindingManager {
@@ -22,6 +27,8 @@ public class KeybindingManager {
     public static KeyMapping INTERACT;
     public static KeyMapping TOGGLE_ALLY_SHOOT;
     public static KeyMapping USE_ABILITY;
+    public static KeyMapping ESCAPE;
+    public static KeyMapping OPEN_CONTAINER;
 
     public static KeyMapping MINIMAP_ZOOM_OUT;
     public static KeyMapping MINIMAP_ZOOM_IN;
@@ -37,6 +44,16 @@ public class KeybindingManager {
                     mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "Nothing to interact with!"), true);
                 }else{
                     net.send(new UsePortalPacketOut(nearestPortal.getState().objectId));
+                }
+            }
+        }
+        if(OPEN_CONTAINER.consumeClick()){
+            if(net != null && net.connected){
+                RObject nearestContainer = net.map.getClosestGameObject(3, Constants.CLASSES_CONTAINER);
+                if(nearestContainer == null) {
+                    mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "No container nearby!"), true);
+                }else{
+                    mc.setScreen(new RContainerScreen(nearestContainer));
                 }
             }
         }
@@ -69,6 +86,17 @@ public class KeybindingManager {
                 case SILENCED -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Silenced"), true);
             }
             USE_ABILITY.setDown(false);
+        }
+        if(ESCAPE.consumeClick()){
+            if(net != null && net.connected){
+                net.disconnect();
+            }
+            Rotcg.ADDRESS = ConnectionAddress.getNexusAddress(Rotcg.SERVER.dns());
+            TickExecutor.addRender(() -> {
+                mc.level.disconnect();
+                mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
+                MenuScreen.connect(mc);
+            });
         }
         if(net != null && Rotcg.MAP != null) {
             int zoomOffset = 0;
