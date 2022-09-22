@@ -6,10 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.tiffit.realmnetapi.RealmNetApi;
-import net.tiffit.realmnetapi.auth.RotmgEnv;
-import net.tiffit.realmnetapi.net.ConnectionAddress;
-import net.tiffit.rotcg.Rotcg;
+import net.tiffit.rotcg.screen.character.CharSelectScreen;
 import net.tiffit.rotcg.util.WorldUtils;
 
 import java.io.File;
@@ -22,16 +19,10 @@ public class MenuScreen extends Screen {
 
     @Override
     protected void init() {
-        Button connect;
-        boolean canConnect = true;
-        addRenderableWidget(connect = new Button(width / 2 - 100, 150, 200, 20, Component.literal("Connect to RotMG"), p_93751_ -> {
+        addRenderableWidget(new Button(width / 2 - 100, 100, 200, 20, Component.literal("Connect to RotMG"), p_93751_ -> {
             assert minecraft != null;
-            Rotcg.ADDRESS = ConnectionAddress.getNexusAddress(RealmNetApi.ENV.defaultIp);
-            connect(minecraft);
+            this.minecraft.setScreen(new CharSelectScreen());
         }));
-        if (!canConnect) {
-            connect.active = false;
-        }
     }
 
     @Override

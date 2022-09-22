@@ -20,6 +20,7 @@ import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.auth.AccessToken;
 import net.tiffit.realmnetapi.auth.RealmAuth;
+import net.tiffit.realmnetapi.auth.data.ServerInfo;
 import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.LangLoader;
@@ -48,6 +49,7 @@ public class Rotcg {
 
     public static AccessToken TOKEN;
     public static ConnectionAddress ADDRESS;
+    public static ServerInfo SERVER;
 
     public Rotcg() {
         WorldUtils.clearExistingWorlds();
