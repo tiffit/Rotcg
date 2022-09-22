@@ -1,6 +1,5 @@
 package net.tiffit.rotcg.render;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -8,17 +7,18 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.ItemStack;
+import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.rotcg.registry.EquipmentItem;
 
-import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class RenderUtils {
@@ -129,6 +129,65 @@ public class RenderUtils {
 
     public static void drawStringRight(Font font, PoseStack ps, String string, float x, float y, int color){
         font.drawShadow(ps, string, x - font.width(string), y, color);
+    }
+
+    public static void hLine(PoseStack ps, int x1, int x2, int y, int color) {
+        if (x2 < x1) {
+            int i = x1;
+            x1 = x2;
+            x2 = i;
+        }
+        Screen.fill(ps, x1, y, x2 + 1, y + 1, color);
+    }
+
+    public static void vLine(PoseStack ps, int x, int y1, int y2, int color) {
+        if (y2 < y1) {
+            int i = y1;
+            y1 = y2;
+            y2 = i;
+        }
+        Screen.fill(ps, x, y1 + 1, x + 1, y2, color);
+    }
+
+    public static void renderSlot(PoseStack ps, int x, int y){
+        renderSlot(ps, x, y, 0xff101010, 0x40000000);
+    }
+
+    public static void renderSlot(PoseStack ps, int x, int y, int outlineColor, int fillerColor){
+        int width = 16;
+        int height = 16;
+        hLine(ps, x, x + width, y - 1, outlineColor);
+        hLine(ps, x, x + width, y + height, outlineColor);
+        vLine(ps, x - 1, y - 2,y + height + 1, outlineColor);
+        vLine(ps, x + width, y - 2,y + height + 1, outlineColor);
+        Screen.fill(ps, x, y, x + width, y + height, fillerColor);
+    }
+
+    public static void renderSlotAndItem(PoseStack ps, int x, int y, ItemStack stack, int outlineColor, int fillerColor){
+        renderSlotAndItemWithOffset(ps, x, y, x, y, stack, outlineColor, fillerColor);
+    }
+
+    public static void renderSlotAndItemWithOffset(PoseStack ps, int x, int y, int stackX, int stackY, ItemStack stack){
+        renderSlotAndItemWithOffset(ps, x, y, stackX, stackY, stack, 0xff101010, 0x40000000);
+    }
+
+    public static void renderSlotAndItemWithOffset(PoseStack ps, int x, int y, int stackX, int stackY, ItemStack stack, int outlineColor, int fillerColor){
+        renderSlot(ps, x, y, outlineColor, fillerColor);
+        if(!stack.isEmpty()){
+            ps = RenderSystem.getModelViewStack();
+            ps.pushPose();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            ps.translate(stackX, stackY, 0);
+            if(x != stackX || y != stackY)ps.translate(0, 0, 1);
+            Minecraft mc = Minecraft.getInstance();
+            GameObject go = ((EquipmentItem)stack.getItem()).go;
+            stack.setCount(go.quantity);
+            mc.getItemRenderer().renderGuiItem(stack, 0, 0);
+            mc.getItemRenderer().renderGuiItemDecorations(mc.font, stack, 0, 0, null);
+            ps.popPose();
+            RenderSystem.applyModelViewMatrix();
+        }
     }
 
 }

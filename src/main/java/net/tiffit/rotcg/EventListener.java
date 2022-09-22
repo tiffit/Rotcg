@@ -3,7 +3,9 @@ package net.tiffit.rotcg;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -60,6 +62,7 @@ import net.tiffit.rotcg.render.effect.RotMGEffect;
 import net.tiffit.rotcg.render.hud.map.Minimap;
 import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
+import net.tiffit.rotcg.screen.slot.RInventoryScreen;
 import net.tiffit.rotcg.util.ObjectEntityTypeMapping;
 import net.tiffit.rotcg.util.TickExecutor;
 import org.lwjgl.glfw.GLFW;
@@ -75,8 +78,11 @@ public class EventListener {
     @SubscribeEvent
     public static void onGuiOpen(ScreenEvent.Opening e) {
         if(Rotcg.DEV_WORLD)return;
-        if(e.getNewScreen() instanceof TitleScreen){
+        Screen screen = e.getNewScreen();
+        if(screen instanceof TitleScreen){
             e.setNewScreen(new MenuScreen());
+        }else if(screen instanceof InventoryScreen){
+            e.setNewScreen(new RInventoryScreen());
         }
     }
 
@@ -248,7 +254,7 @@ public class EventListener {
         }
         if(e.phase == TickEvent.Phase.START){
             if(player.getY() < 10){ //Fix falling player
-                player.teleportTo(player.getX(), 65, player.getZ());
+                player.teleportTo(player.getX(), 67, player.getZ());
             }
             RMap map = networker.map;
             if(map != null && map.getSelfState() != null){
@@ -268,7 +274,7 @@ public class EventListener {
                         bps *= ground.speed;
                     }
                     double mcSpeed = bps / 4.3478f;
-                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.1 * mcSpeed);
+                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.1f * mcSpeed * 0.95f);
                 }
                 if(updateInventory && e.side == LogicalSide.SERVER){ //Held Item
                     Inventory inv = player.getInventory();

@@ -61,10 +61,6 @@ public class RAnimationManager {
                 }
             }
         }
-        if(textureObj.texture.get(0).animated){
-            Texture tex = textureObj.texture.get(0);
-
-        }
     }
     public void setAnimation(Animation animation){
         current = animation;
