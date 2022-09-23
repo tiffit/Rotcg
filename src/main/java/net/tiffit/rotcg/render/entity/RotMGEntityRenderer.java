@@ -114,15 +114,8 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
     }
 
     protected double doRenderNormal(T entity, float entityYaw, float partialTicks, GameObject go, GameObjectState state, PoseStack stack, MultiBufferSource buffer, int packedLight){
-        GameObject goTexture = go;
         stack.pushPose();
-//        if(state.hasStat(StatType.TEXTURE)){
-//            System.out.println("Texture is: " + state.<String>getStat(StatType.TEXTURE));
-//            //int textureId = state.getStat(StatType.TEXTURE);
-//            //if(textureId != 0)goTexture = XMLLoader.OBJECTS.get(textureId);
-//        }
-//        if(goTexture == null)goTexture = go;
-        if(goTexture.texture.size() == 0){
+        if(go.texture.size() == 0){
             stack.popPose();
             return 0;
         }

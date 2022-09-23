@@ -24,15 +24,15 @@ public class ThrownEffect extends RotMGEffect {
     @Override
     public void onTick() {
         Minecraft mc = Minecraft.getInstance();
-        Vec2f xPos = getCurrentPos(start.x(), end.x());
-        Vec2f zPos = getCurrentPos(start.y(), end.y());
+        Vec2f xPos = interpolate(this, start.x(), end.x());
+        Vec2f zPos = interpolate(this, start.y(), end.y());
         mc.level.addParticle(data, xPos.x(), 65 + xPos.y(), zPos.x(), 0, 0, 0);
     }
 
-    private Vec2f getCurrentPos(float start, float end){
-        float timePass = System.currentTimeMillis() - createTime;
+    public static Vec2f interpolate(RotMGEffect effect, float start, float end){
+        float timePass = System.currentTimeMillis() - effect.createTime;
         float diff = start - end;
-        float x = (float) (end + diff * timePass/(duration*1000));
+        float x = (float) (end + diff * timePass/(effect.duration*1000));
         float midway = end + diff/2;
         float height = -(midway - end) * (midway - start);
 

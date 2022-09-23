@@ -62,7 +62,6 @@ public abstract class RotcgEntity extends LivingEntity{
         entityData.define(OBJECT_ID, 0);
     }
 
-
     @Override
     public void tick() {
         setNoGravity(true);

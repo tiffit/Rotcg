@@ -1,10 +1,8 @@
 package net.tiffit.rotcg.registry.entity;
 
-import net.tiffit.realmnetapi.assets.xml.Animation;
-import net.tiffit.realmnetapi.assets.xml.GameObject;
-import net.tiffit.realmnetapi.assets.xml.Texture;
-import net.tiffit.realmnetapi.assets.xml.XMLLoader;
+import net.tiffit.realmnetapi.assets.xml.*;
 import net.tiffit.realmnetapi.map.object.RObject;
+import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 
 import java.util.Map;
@@ -13,6 +11,8 @@ public class RAnimationManager {
 
     private final RObject obj;
     private GameObject textureObj;
+    private Style currentStyle;
+    private int currentStyleId = Style.EMPTY_PRESENTATION;
     private final RotcgEntity entity;
     private Animation current;
     private Animation.AnimationFrame frame;
@@ -32,6 +32,16 @@ public class RAnimationManager {
         }
     }
     public Texture getTexture(){
+        if(currentStyle != null){
+            if(currentStyle.steps.size() > 0){
+                Style.StyleStep step = currentStyle.steps.get(0);
+                if(step instanceof Style.SetAltTextureStep s){
+                    if(textureObj.altTextures.containsKey(s.altTextureId)){
+                        return textureObj.altTextures.get(s.altTextureId);
+                    }
+                }
+            }
+        }
         if(inAnimation()){
             return frame.texture;
         }
@@ -61,10 +71,36 @@ public class RAnimationManager {
                 }
             }
         }
+        if(obj.getState().hasStat(StatType.TEXTURE)){
+            int newTexId = obj.getState().getStat(StatType.TEXTURE);
+            if(newTexId != 0 && (textureObj == null || textureObj.type != newTexId)){
+                textureObj = XMLLoader.OBJECTS.get(newTexId);
+            }
+        }
+        if(obj.getState().hasStat(StatType.STYLE_ID_HASH)){
+            int id = obj.getState().<Integer>getStat(StatType.STYLE_ID_HASH);
+            if(id != currentStyleId){
+                currentStyleId = id;
+                if(id == Style.EMPTY_PRESENTATION){
+                    currentStyle = null;
+                    setAnimation(null);
+                }else{
+                    currentStyle = textureObj.styles.get(id);
+                    if(currentStyle != null && currentStyle.steps.size() > 0){
+                        Style.StyleStep step = currentStyle.steps.get(0);
+                        if(step instanceof Style.SetAnimationStep s){
+                            setAnimation(textureObj.animations.get(s.animationId));
+                        }
+                    }
+                }
+            }
+        }
     }
     public void setAnimation(Animation animation){
         current = animation;
-        setFrame(0);
+        if(current != null){
+            setFrame(0);
+        }
     }
 
     private void setFrame(int index){

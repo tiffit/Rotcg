@@ -41,7 +41,7 @@ public abstract class RotMGEffect {
         CONEBLAST_EFFECT_TYPE(13),
         JITTER_EFFECT_TYPE(14),
         FLASH_EFFECT_TYPE(15),
-        THROW_PROJECTILE_EFFECT_TYPE(16),
+        THROW_PROJECTILE_EFFECT_TYPE(16, ThrowProjectileEffect.class),
         SHOCKER_EFFECT_TYPE(17),
         SHOCKEE_EFFECT_TYPE(18),
         RISING_FURY_EFFECT_TYPE(19),
