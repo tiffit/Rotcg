@@ -45,6 +45,7 @@ import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.ConnectionAddress;
+import net.tiffit.realmnetapi.net.NetworkLogger;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.packet.in.AoePacketIn;
 import net.tiffit.realmnetapi.net.packet.in.ReconnectPacketIn;
@@ -209,6 +210,9 @@ public class EventListener {
                 } catch (ReflectiveOperationException ex) {
                     ex.printStackTrace();
                 }
+            }else{
+                NetworkLogger logger = Rotcg.ACTIVE_CONNECTION.logger;
+                logger.writeFormat("Unknown effect %d (start: %s, end: %s, target: %d, duration: %f)", packet.effectType, packet.start.toString(), packet.end.toString(), packet.targetObjectId, packet.duration);
             }
         });
 
