@@ -50,7 +50,7 @@ public class RInventoryScreen extends MoveableSlotScreen {
         List<RObject> containers = map.getEntityList().getAll(object -> {
             if(!object.getGameObject().goClass.equals("Container"))return false;
             Vec2f playerPos = map.getPlayerPos().getPos();
-            if(playerPos.distanceSqr(object.getCurrentPos()) < 9){
+            if(playerPos.distanceSqr(object.getCurrentPos()) < 3){
                 return true;
             }
             return false;
@@ -62,7 +62,7 @@ public class RInventoryScreen extends MoveableSlotScreen {
                 if(containerObj.getState().hasStat(StatType.byID(j))){
                     int offset_j = j - StatType.INVENTORY_0.id;
                     int xPos = offset_j * slotPadding - slotPadding*4;
-                    addSlot(scaledWidth / 2 + xPos, scaledHeight/2 - 10 + i*20, j, containerObj.getState());
+                    addSlot(scaledWidth / 2 + xPos, scaledHeight/2 + 10 + i*20, j, containerObj.getState());
                 }
             }
         }
