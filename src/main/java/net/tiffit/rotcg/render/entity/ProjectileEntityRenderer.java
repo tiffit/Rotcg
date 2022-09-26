@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.tiffit.realmnetapi.map.projectile.ProjectileState;
+import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.pack.RotCGPack;
 import net.tiffit.rotcg.registry.entity.ProjectileEntity;
@@ -34,7 +35,12 @@ public class ProjectileEntityRenderer extends EntityRenderer<ProjectileEntity> {
         vec = vec.sub((float) entity.getX(), (float) entity.getZ());
         stack.pushPose();
         stack.translate(vec.x(), 0, vec.y());
-        stack.mulPose(Vector3f.YP.rotationDegrees((float)-Math.toDegrees(state.angle) - 45 * angleCorrection + 180));
+        float angle = (float)-Math.toDegrees(state.angle) - 45 * angleCorrection + 180;
+        if(state.obj.rotation != 0){
+            int msPassed = RealmNetworker.getTimeReal() - entity.getReference().startTime;
+            angle += state.obj.rotation / 250f * msPassed;
+        }
+        stack.mulPose(Vector3f.YP.rotationDegrees(angle));
         stack.scale(0.7f, 0.7f, 0.7f);
         RenderType type = RenderType.entityTranslucent(RotCGPack.textToRlFull(state.obj.texture.get(0)));
         stack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
