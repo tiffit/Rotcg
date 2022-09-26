@@ -24,10 +24,9 @@ public class AoeEffect extends RotMGEffect {
         Minecraft mc = Minecraft.getInstance();
         double radius = end.x();
         double totalAngle = Math.PI*2;
-        for(double angle = 0; angle < totalAngle; angle += totalAngle/36){
-            for(double i = 0; i <= 1; i += 0.1) {
-                double newr = radius * i;
-                mc.level.addParticle(data, start.x() + Math.cos(angle) * newr, 65, start.y() + Math.sin(angle) * newr, 0, 5, 0);
+        for(double angle = 0; angle < totalAngle; angle += totalAngle/18){
+            for(double i = 0; i <= radius; i += radius/10) {
+                mc.level.addParticle(data, start.x() + Math.cos(angle) * i, 65, start.y() + Math.sin(angle) * i, 0, 5, 0);
             }
         }
     }
