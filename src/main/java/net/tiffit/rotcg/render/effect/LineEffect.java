@@ -4,8 +4,8 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
-import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.RObject;
+import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.Rotcg;
 
@@ -23,21 +23,26 @@ public class LineEffect extends RotMGEffect {
     @Override
     public void onCreate() {
         Minecraft mc = Minecraft.getInstance();
-        Vec2f pos;
-        RMap map = Rotcg.ACTIVE_CONNECTION.map;
-        if (targetObjectId == map.getObjectId()) {
-            pos = new Vec2f((float) mc.player.getX(), (float) mc.player.getZ());
-        } else if (map.getEntityList().has(targetObjectId)) {
-            RObject entity = map.getEntityList().get(targetObjectId);
-            pos = new Vec2f(entity.getCorrectedX(), entity.getCorrectedY());
-        } else {
+        RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
+        Vec2f end = null;
+        if(targetObjectId == net.map.getObjectId()){
+            end = new Vec2f((float) mc.player.getX(), (float) mc.player.getZ());
+        }else if(net.map.getEntityList().has(targetObjectId)){
+            RObject entity = net.map.getEntityList().get(targetObjectId);
+            end = entity.getCurrentPos();
+        }else{
             return;
         }
-        for (int i = 0; i < 40; i++) {
-            double offX = (Math.random() * 0.5) - 0.25;
-            double offY = Math.random();
-            double offZ = (Math.random() * 0.5) - 0.25;
-            mc.level.addParticle(data, pos.x() + offX, 65 + offY, pos.y() + offZ, 0, 100000, 0);
+        Vec2f subVec = end.sub(start);
+        double distance = Math.sqrt(subVec.distanceSqr(Vec2f.ZERO));
+        int numberPer = 3;
+        double amount = numberPer * distance;
+        double dx = (end.x() - start.x())/amount;
+        double dy = (end.y() - start.y())/amount;
+        for(int i = 0; i < amount; i++){
+            double x = start.x() + dx*i;
+            double y = start.y() + dy*i;
+            mc.level.addParticle(data, x, 66, y, 0, 0, 0);
         }
     }
 

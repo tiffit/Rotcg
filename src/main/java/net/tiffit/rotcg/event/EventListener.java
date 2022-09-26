@@ -1,16 +1,12 @@
-package net.tiffit.rotcg;
+package net.tiffit.rotcg.event;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -44,23 +40,13 @@ import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.map.RMap;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
-import net.tiffit.realmnetapi.net.ConnectionAddress;
-import net.tiffit.realmnetapi.net.NetworkLogger;
 import net.tiffit.realmnetapi.net.RealmNetworker;
-import net.tiffit.realmnetapi.net.packet.in.AoePacketIn;
-import net.tiffit.realmnetapi.net.packet.in.ReconnectPacketIn;
-import net.tiffit.realmnetapi.net.packet.in.ShowEffectPacketIn;
-import net.tiffit.realmnetapi.net.packet.in.TextPacketIn;
-import net.tiffit.realmnetapi.util.LangLoader;
-import net.tiffit.realmnetapi.util.math.Vec2f;
+import net.tiffit.rotcg.Constants;
+import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.registry.GroundBlock;
-import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.registry.entity.ProjectileEntityContainer;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.registry.entity.RotcgEntityContainer;
-import net.tiffit.rotcg.render.effect.AoeEffect;
-import net.tiffit.rotcg.render.effect.RotMGEffect;
-import net.tiffit.rotcg.render.hud.map.Minimap;
 import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.screen.slot.RInventoryScreen;
@@ -104,75 +90,12 @@ public class EventListener {
 
         Hooks.PlayerPosTracker = () -> new McPlayerPosTracker(e.getEntity());
 
-        EventHandler.addListener(TileAddEvent.class, tileAddEvent -> {
-            if(Rotcg.MAP == null){
-                Rotcg.MAP = new Minimap(Rotcg.ACTIVE_CONNECTION.map);
-            }
-            Rotcg.MAP.setTiles(tileAddEvent.newTiles());
-            tileAddEvent.newTiles().forEach((vec2i, ground) ->
-                    level.setBlock(new BlockPos(vec2i.x(), 64, vec2i.y()), ModRegistry.R_GROUNDS.get(ground.type).get().defaultBlockState(),11));
-        });
-
-        EventHandler.addListener(ReconnectEvent.class, reconnectEvent -> {
-            Rotcg.ACTIVE_CONNECTION.disconnect();
-            ReconnectPacketIn packet = reconnectEvent.packet();
-            String address = packet.host.isEmpty() ? Rotcg.ADDRESS.address() : packet.host;
-            Rotcg.ADDRESS = new ConnectionAddress(address, 2050, packet.key, packet.keyTime, packet.gameId);
-            TickExecutor.addRender(() -> {
-                Minecraft mc = Minecraft.getInstance();
-                mc.level.disconnect();
-                mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
-                MenuScreen.connect(mc);
-            });
-        });
-
-        EventHandler.addListener(PlayerDataEvent.class, playerDataEvent -> {
-            updateInventory = true;
-        });
-
-        EventHandler.addListener(ChatEvent.class, chatEvent -> {
-            String sendText = "";
-            TextPacketIn packet = chatEvent.packet();
-            int numStars = packet.numStars;
-            String name = packet.name;
-            String text = packet.text;
-            if (numStars >= 0) {
-                ChatFormatting starColor = numStars <= 14 ? ChatFormatting.BLUE :
-                        numStars <= 29 ? ChatFormatting.DARK_BLUE :
-                                numStars <= 44 ? ChatFormatting.DARK_RED :
-                                        numStars <= 59 ? ChatFormatting.GOLD :
-                                                numStars <= 74 ? ChatFormatting.YELLOW : ChatFormatting.WHITE;
-                sendText = starColor + "\u2b50 ";
-            }
-            if(packet.recipient.equals("*Guild*")){
-                sendText += ChatFormatting.GREEN + "<" + name + "> " + text;
-            }else if(name.equals("*Error*")) {
-                sendText += ChatFormatting.DARK_RED + text;
-            }else if(!packet.recipient.isEmpty() && !name.isEmpty()){
-                String suffix = text;
-                if(packet.objectId == Rotcg.ACTIVE_CONNECTION.map.getObjectId()){
-                    suffix = "To: <" + packet.recipient + "> " + suffix;
-                }else{
-                    suffix = "<" + packet.name + "> " + suffix;
-                }
-                sendText += ChatFormatting.AQUA + suffix;
-            } else {
-                ChatFormatting nameColor = packet.isSupporter ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_GREEN;
-                if (name.startsWith("#")) nameColor = ChatFormatting.GOLD;
-                String nameText = name.isEmpty() ? "" : nameColor + "<" + (name.startsWith("#") ? name.substring(1) : name) + "> ";
-                if (numStars < 0) text = LangLoader.format(text);
-                sendText += nameText + ChatFormatting.RESET + text;
-
-                if (name.trim().isEmpty())
-                    sendText = ChatFormatting.YELLOW + ChatFormatting.stripFormatting(sendText);
-            }
-            MutableComponent comp = Component.literal(sendText);
-            if(!name.isEmpty()){
-                comp.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/ignore " + name)));
-            }
-            Rotcg.SERVER_PLAYER.sendSystemMessage(comp);
-        });
-
+        EventHandler.addListener(TileAddEvent.class, tileAddEvent -> TileAddEventHandler.handle(tileAddEvent, level));
+        EventHandler.addListener(ReconnectEvent.class, ReconnectEventHandler::handle);
+        EventHandler.addListener(PlayerDataEvent.class, playerDataEvent -> updateInventory = true);
+        EventHandler.addListener(ChatEvent.class, ChatEventHandler::handle);
+        EventHandler.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
+        EventHandler.addListener(AoeEvent.class, AoeEventHandler::handle);
 
         Hooks.ShootDecider = new IShootDecider() {
             @Override
@@ -198,29 +121,6 @@ public class EventListener {
             Rotcg.LOGGER.warn("Unknown object-class " + go.goClass + "; id: " + go.id);
             return new IObjectListener.EmptyObjectListener(rObject);
         };
-
-        EventHandler.addListener(ShowEffectEvent.class, showEffectEvent -> {
-            ShowEffectPacketIn packet = showEffectEvent.packet();
-            RotMGEffect.VisualEffect effect = RotMGEffect.VisualEffect.byId(packet.effectType);
-            if (effect.effectClass != null) {
-                try {
-                    RotMGEffect reffect = effect.effectClass.getConstructor(int.class, Vec2f.class, Vec2f.class, int.class, double.class)
-                            .newInstance(packet.targetObjectId, packet.start, packet.end, packet.color, packet.duration);
-                    TickExecutor.trackEffect(reffect);
-                } catch (ReflectiveOperationException ex) {
-                    ex.printStackTrace();
-                }
-            }else{
-                NetworkLogger logger = Rotcg.ACTIVE_CONNECTION.logger;
-                logger.writeFormat("Unknown effect %d (start: %s, end: %s, target: %d, duration: %f)", packet.effectType, packet.start.toString(), packet.end.toString(), packet.targetObjectId, packet.duration);
-            }
-        });
-
-        EventHandler.addListener(AoeEvent.class, aoeEvent -> {
-            AoePacketIn packet = aoeEvent.packet();
-            AoeEffect effect = new AoeEffect(0, packet.pos, new Vec2f(packet.radius, 0), packet.color, packet.duration);
-            TickExecutor.trackEffect(effect);
-        });
 
         Hooks.ProjectileListener = ProjectileEntityContainer::new;
 

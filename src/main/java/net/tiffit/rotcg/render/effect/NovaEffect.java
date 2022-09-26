@@ -6,7 +6,6 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.RotMGEntityList;
-import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.Rotcg;
 
@@ -31,26 +30,15 @@ public class NovaEffect extends RotMGEffect {
     @Override
     public void onCreate() {
         Minecraft mc = Minecraft.getInstance();
-        RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
-        Vec2f end = null;
-        if(targetObjectId == net.map.getObjectId()){
-            end = new Vec2f((float) mc.player.getX(), (float) mc.player.getZ());
-        }else if(net.map.getEntityList().has(targetObjectId)){
-            RObject entity = net.map.getEntityList().get(targetObjectId);
-            end = entity.getCurrentPos();
-        }else{
-            return;
-        }
-        Vec2f subVec = end.sub(start);
-        double distance = Math.sqrt(subVec.distanceSqr(Vec2f.ZERO));
-        int numberPer = 3;
-        double amount = numberPer * distance;
-        double dx = (end.x() - start.x())/amount;
-        double dy = (end.y() - start.y())/amount;
-        for(int i = 0; i < amount; i++){
-            double x = start.x() + dx*i;
-            double y = start.y() + dy*i;
-            mc.level.addParticle(data, x, 66, y, 0, 0, 0);
+        if(center != null) {
+            double radius = start.x();
+            double totalAngle = Math.PI*2;
+            for(double angle = 0; angle < totalAngle; angle += totalAngle/8){
+                for(double i = 0; i <= 1; i += 0.1) {
+                    double newr = radius * i;
+                    mc.level.addParticle(data, center.x() + Math.cos(angle) * newr, 65, center.y() + Math.sin(angle) * newr, 0, 5, 0);
+                }
+            }
         }
     }
 
