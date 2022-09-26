@@ -274,7 +274,7 @@ public class EventListener {
                         bps *= ground.speed;
                     }
                     double mcSpeed = bps / 4.3478f;
-                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.1f * mcSpeed * 0.95f);
+                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.11f * mcSpeed);
                 }
                 if(updateInventory && e.side == LogicalSide.SERVER){ //Held Item
                     Inventory inv = player.getInventory();
@@ -355,7 +355,21 @@ public class EventListener {
         if(e.getMessage().startsWith(":")) {
             String text = e.getMessage().substring(":".length());
             e.setCanceled(true);
-            Rotcg.ACTIVE_CONNECTION.controller.sendChatMessage(text);
+            if(text.startsWith("/tp") || text.startsWith("/teleport")){
+                String[] args = text.split(" ");
+                if(args.length == 2){
+                    String ign = args[1];
+                    RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
+                    RObject obj = net.map.getEntityList().get(object -> object.getState().hasStat(StatType.NAME) && object.getState().<String>getStat(StatType.NAME).equals(ign));
+                    if(obj != null){
+                        net.controller.teleport(obj);
+                    }else{
+                        Minecraft.getInstance().gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "Player does not exist!"), true);
+                    }
+                }
+            }else{
+                Rotcg.ACTIVE_CONNECTION.controller.sendChatMessage(text);
+            }
         }
     }
 

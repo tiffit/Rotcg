@@ -34,9 +34,9 @@ public class HUDBars {
                 int level = state.<Integer>getStat(StatType.LEVEL);
                 boolean maxLevel = level == 20;
                 if(!maxLevel){
-                    valMin = state.<Integer>getStat(StatType.EXP);
+                    valMin = Integer.parseInt(state.getStat(StatType.EXP));
                     valMax = state.<Integer>getStat(StatType.NEXT_LEVEL_EXP);
-                    color = 0xff00ff00;
+                    color = 0xff_00_d0_00;
                     typeName = "Level " + level;
                 }else {
                     valMin = state.<Integer>getStat(StatType.CURR_FAME);

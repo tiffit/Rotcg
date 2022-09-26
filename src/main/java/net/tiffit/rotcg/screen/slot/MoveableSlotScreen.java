@@ -18,6 +18,7 @@ import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.realmnetapi.net.SlotObjectData;
+import net.tiffit.realmnetapi.net.packet.out.InvDropPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.InvSwapPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UseItemPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
@@ -48,7 +49,7 @@ public class MoveableSlotScreen extends Screen {
         int scaledWidth = window.getGuiScaledWidth();
         int scaledHeight = window.getGuiScaledHeight();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        drawCenteredString(ps, font, title, scaledWidth/2, scaledHeight/2 - 10, 0xffffffff);
+        drawCenteredString(ps, font, title, scaledWidth/2, scaledHeight/2 - 80, 0xffffffff);
     }
 
     @Override
@@ -89,10 +90,10 @@ public class MoveableSlotScreen extends Screen {
                 }
             }
         }
-//        if(dragSlot != null && dragSlot.state == net.map.getSelfState()){
-//            SlotObjectData data = new SlotObjectData(dragSlot.state.objectId, dragSlot.getPacketSlot(), dragSlot.getItemId());
-//            net.send(new InvDropPacketOut(data));
-//        }
+        if(dragSlot != null && dragSlot.state == net.map.getSelfState()){
+            SlotObjectData data = new SlotObjectData(dragSlot.state.objectId, dragSlot.getPacketSlot(), dragSlot.getItemId());
+            net.send(new InvDropPacketOut(data));
+        }
         dragSlot = null;
         return false;
     }

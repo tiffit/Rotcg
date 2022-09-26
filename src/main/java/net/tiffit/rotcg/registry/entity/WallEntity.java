@@ -32,10 +32,10 @@ public class WallEntity extends RotcgEntity {
     }
 
     @Override
-    public void onRemovedFromWorld() {
+    public void remove(RemovalReason pReason) {
         BlockPos pos = new BlockPos(getX(), getY(), getZ());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-        super.onRemovedFromWorld();
+        super.remove(pReason);
     }
 
 }

@@ -27,7 +27,6 @@ public abstract class RotcgEntity extends LivingEntity{
 
     private RObject reference;
     public RAnimationManager animationManager;
-
     private static final EntityDataAccessor<Integer> OBJECT_ID = SynchedEntityData.defineId(RotcgEntity.class, EntityDataSerializers.INT);
     private static List<ItemStack> armorSlots = new ArrayList<>(0);
 

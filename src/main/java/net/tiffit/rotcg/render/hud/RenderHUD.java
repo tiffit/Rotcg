@@ -31,7 +31,7 @@ public class RenderHUD {
 
     public static void renderUnsafe(RenderGuiOverlayEvent e){
         RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
-        boolean inGame = net != null && net.map.getSelfState() != null;
+        boolean inGame = net != null && net.map != null && net.map.getSelfState() != null;
         String overlayType = e.getOverlay().id().getPath();
         if(e instanceof RenderGuiOverlayEvent.Pre){
             switch (overlayType) {
@@ -56,7 +56,10 @@ public class RenderHUD {
             switch (overlayType) {
                 case HEALTH, FOOD, EXPERIENCE -> HUDBars.render(e, overlayType, state, scaledWidth, scaledHeight, mc, font);
                 case HOTBAR -> HUDHotbar.render(e, state, scaledWidth, scaledHeight, mc, font);
-                case ARMOR -> HUDMinimap.render(e, pre.getPoseStack(), state, scaledWidth, scaledHeight, mc, font);
+                case ARMOR -> {
+                    HUDMinimap.render(e, pre.getPoseStack(), state, scaledWidth, scaledHeight, mc, font);
+                    HUDBossBars.render(e, state, scaledWidth, scaledHeight, mc, font);
+                }
             }
         }
 //        if(elementType == RenderGameOverlayEvent.ElementType.HOTBAR){

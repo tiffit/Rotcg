@@ -23,7 +23,9 @@ public class RAnimationManager {
         this.obj = obj;
         this.textureObj = obj.getGameObject();
         if(!textureObj.defaultSkin.isEmpty()){
-            textureObj = XMLLoader.ID_TO_OBJECT.get(textureObj.defaultSkin);
+            if(XMLLoader.ID_TO_OBJECT.containsKey(textureObj.defaultSkin)){
+                textureObj = XMLLoader.ID_TO_OBJECT.get(textureObj.defaultSkin);
+            }
         }
         this.entity = entity;
         Map<String, Animation> animations = textureObj.animations;
@@ -74,7 +76,9 @@ public class RAnimationManager {
         if(obj.getState().hasStat(StatType.TEXTURE)){
             int newTexId = obj.getState().getStat(StatType.TEXTURE);
             if(newTexId != 0 && (textureObj == null || textureObj.type != newTexId)){
-                textureObj = XMLLoader.OBJECTS.get(newTexId);
+                if(XMLLoader.OBJECTS.containsKey(newTexId)){
+                    textureObj = XMLLoader.OBJECTS.get(newTexId);
+                }
             }
         }
         if(obj.getState().hasStat(StatType.STYLE_ID_HASH)){

@@ -12,11 +12,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.rotcg.registry.EquipmentItem;
 import net.tiffit.rotcg.render.RenderUtils;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
+
+import java.util.List;
 
 public class HUDHotbar {
 
@@ -69,10 +72,17 @@ public class HUDHotbar {
         RenderUtils.drawStringRight(font, ps, "SPD " + state.getSpeed(), statsLeft, scaledHeight - statsHeight - 10, 0xffffffff);
         RenderUtils.drawStringRight(font, ps, "ATT " + state.getAttack(), statsLeft, scaledHeight - statsHeight - 20, 0xffffffff);
 
-
         font.drawShadow(ps, "DEF " + state.getDefense(), statsRight, scaledHeight - statsHeight, 0xffffffff);
         font.drawShadow(ps, "DEX " + state.getDexterity(), statsRight, scaledHeight - statsHeight - 10, 0xffffffff);
         font.drawShadow(ps, "WIS " + state.getWisdom(), statsRight, scaledHeight - statsHeight - 20, 0xffffffff);
+
+        List<ConditionEffect> effectList = state.getAllEffects();
+        for (int i = 0; i < effectList.size(); i++) {
+            ConditionEffect effect = effectList.get(i);
+            String name = effect.getDisplayName();
+            int color = effect.buff ? 0xff_00_ff_00 : 0xff_ff_00_00;
+            font.drawShadow(ps, name, scaledWidth - font.width(name) - 5, scaledHeight - 25 - i*15, color);
+        }
     }
 
 }
