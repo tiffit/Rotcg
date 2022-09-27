@@ -7,6 +7,7 @@ import net.tiffit.realmnetapi.auth.RealmAuth;
 import net.tiffit.realmnetapi.auth.data.PlayerChar;
 import net.tiffit.rotcg.Rotcg;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class CharSelectScreen extends Screen {
@@ -17,6 +18,7 @@ public class CharSelectScreen extends Screen {
     public CharSelectScreen() {
         super(Component.literal("Select Character"));
         chars = RealmAuth.charList(Rotcg.TOKEN);
+        chars.sort(Comparator.comparingInt(value -> -value.id()));
     }
 
     @Override

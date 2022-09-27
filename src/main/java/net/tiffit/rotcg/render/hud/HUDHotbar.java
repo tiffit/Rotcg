@@ -79,6 +79,7 @@ public class HUDHotbar {
         List<ConditionEffect> effectList = state.getAllEffects();
         for (int i = 0; i < effectList.size(); i++) {
             ConditionEffect effect = effectList.get(i);
+            if(effect == ConditionEffect.PAUSED)continue;
             String name = effect.getDisplayName();
             int color = effect.buff ? 0xff_00_ff_00 : 0xff_ff_00_00;
             font.drawShadow(ps, name, scaledWidth - font.width(name) - 5, scaledHeight - 25 - i*15, color);

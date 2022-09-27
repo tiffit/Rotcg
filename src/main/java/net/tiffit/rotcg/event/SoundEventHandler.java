@@ -26,10 +26,11 @@ public class SoundEventHandler {
 
     public static void handleEnemyHit(EnemyHitEvent enemyHitEvent){
         if(enemyHitEvent.proj().getProjectileState().team == ProjectileState.ProjectileTeam.ALLY)return;
+        if(enemyHitEvent.damage() <= 3)return;
         GameObject go = enemyHitEvent.enemyState().getGameObject();
         String sound = enemyHitEvent.kill() ? go.deathSound : go.hitSound;
         if(!Strings.isNullOrEmpty(sound)){
-            ResourceLocation rl = new RotCGResourceLocation(sound.replaceAll("/", "."));
+            ResourceLocation rl = new RotCGResourceLocation(sound.toLowerCase().replaceAll("/", "."));
             Vec2f position = enemyHitEvent.enemyState().position;
             TickExecutor.addClient(() -> {
                 Minecraft mc = Minecraft.getInstance();
@@ -42,12 +43,17 @@ public class SoundEventHandler {
 
     public static void handlePlayerShoot(PlayerShootEvent playerShootEvent){
         GameObject go = playerShootEvent.weapon();
-        String sound = go.sound;
+        String sound = switch (playerShootEvent.type()) {
+            case DAGGER_TYPE, KATANA_TYPE, SWORD_TYPE -> "bladeSwing";
+            case WAND_TYPE, STAFF_TYPE -> "magicShoot";
+            case BOW_TYPE -> "arrowShoot";
+            default -> go.sound;
+        };
         if(!Strings.isNullOrEmpty(sound)){
-            ResourceLocation rl = new RotCGResourceLocation(sound.replaceAll("/", "."));
+            ResourceLocation rl = new RotCGResourceLocation(sound.toLowerCase().replaceAll("/", "."));
             TickExecutor.addClient(() -> {
                 Minecraft mc = Minecraft.getInstance();
-                mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.PLAYERS, 1, 1, src,
+                mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.PLAYERS, 0.2f, 1, src,
                         false, 0, SoundInstance.Attenuation.LINEAR, mc.player.getX(), mc.player.getY(), mc.player.getZ(), false));
             });
         }
@@ -63,7 +69,7 @@ public class SoundEventHandler {
                 String sound = packet.kill ? go.deathSound : go.hitSound;
                 if(!Strings.isNullOrEmpty(sound)){
                     Vec2f position = obj.getState().position;
-                    ResourceLocation rl = new RotCGResourceLocation(sound.replaceAll("/", "."));
+                    ResourceLocation rl = new RotCGResourceLocation(sound.toLowerCase().replaceAll("/", "."));
                     TickExecutor.addClient(() -> {
                         Minecraft mc = Minecraft.getInstance();
                         mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.HOSTILE, 1, 1, src,

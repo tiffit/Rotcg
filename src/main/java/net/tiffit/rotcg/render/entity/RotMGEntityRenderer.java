@@ -203,6 +203,10 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         if(!go.drawOnGround) {
             Player player = Minecraft.getInstance().player;
             stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(player.getX() - entity.getX(), player.getZ() - entity.getZ())));
+        }else{
+            if(entity.getX() == (int)entity.getX() && entity.getZ() == (int)entity.getZ()){
+                stack.translate(0.5f, 0, 0.5f);
+            }
         }
         int size = go.size;
         if(state.hasStat(StatType.SIZE))size = state.getStat(StatType.SIZE);

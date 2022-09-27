@@ -7,25 +7,38 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.tiffit.realmnetapi.assets.ConditionEffect;
+import net.tiffit.realmnetapi.assets.xml.HealthBarBoss;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
+import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.render.RenderUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HUDBossBars {
 
+    private static List<RObject> bossBars = new ArrayList<>();
+    private static long lastUpdate = 0;
+
     static void render(RenderGuiOverlayEvent e, GameObjectState state, int scaledWidth, int scaledHeight, Minecraft mc, Font font){
-        List<RObject> hpBarEnemies = Rotcg.ACTIVE_CONNECTION.map.getEntityList().getAll(object -> {
-            return object.getGameObject().healthBar.radius() != 0;
-        });
+        if(System.currentTimeMillis() - lastUpdate > 1000) {
+            Vec2f playerPos = new Vec2f((float) mc.player.getX(), (float) mc.player.getZ());
+            bossBars = Rotcg.ACTIVE_CONNECTION.map.getEntityList().getAll(object -> {
+                HealthBarBoss hbb = object.getGameObject().healthBar;
+                if (hbb.radius() == 0) return false;
+                Vec2f objPos = object.getCurrentPos().add(new Vec2f(hbb.xOffset(), hbb.yOffset()));
+                return playerPos.distanceSqr(objPos) <= hbb.radius() * hbb.radius();
+            });
+            lastUpdate = System.currentTimeMillis();
+        }
         int eachWidth = 150;
         int eachHeight = 15;
-        for (int i = 0; i < hpBarEnemies.size(); i++) {
+        for (int i = 0; i < bossBars.size(); i++) {
             PoseStack stack = e.getPoseStack();
             stack.pushPose();
-            RObject robj = hpBarEnemies.get(i);
+            RObject robj = bossBars.get(i);
             GameObjectState enemyState = robj.getState();
             int hp = enemyState.getHP();
             int maxHp = enemyState.getHPMax();
