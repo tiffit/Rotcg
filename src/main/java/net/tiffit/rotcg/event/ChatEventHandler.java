@@ -16,6 +16,9 @@ public class ChatEventHandler {
         TextPacketIn packet = chatEvent.packet();
         int numStars = packet.numStars;
         String name = packet.name;
+        if(!name.startsWith("#")){
+            name = name.split(",")[0];
+        }
         String text = packet.text;
         if (numStars >= 0) {
             ChatFormatting starColor = numStars <= 14 ? ChatFormatting.BLUE :

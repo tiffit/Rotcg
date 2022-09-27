@@ -33,18 +33,22 @@ public class PlayerEntity extends RotcgEntity {
         return true;
     }
 
+    private Component cachedName;
+
     @Nullable
     @Override
     public Component getCustomName() {
+        if(cachedName != null)return cachedName;
         GameObjectState state = getReference().getState();
-        String name = state.getStat(StatType.NAME);
-        boolean nameChosen = state.<Integer>getStat(StatType.NAME_CHOSEN) != null && state.<Integer>getStat(StatType.NAME_CHOSEN) > 0;
-        boolean supporter = state.<Integer>getStat(StatType.SUPPORTER) != null && state.<Integer>getStat(StatType.SUPPORTER) > 0;
+        String name = state.<String>getStat(StatType.NAME).split(",")[0];
+        boolean nameChosen = state.hasStat(StatType.NAME_CHOSEN) && state.<Integer>getStat(StatType.NAME_CHOSEN) > 0;
+        boolean supporter = state.hasStat(StatType.SUPPORTER) && state.<Integer>getStat(StatType.SUPPORTER) > 0;
         if(nameChosen){
             if(supporter)name = ChatFormatting.LIGHT_PURPLE + name;
             else name = ChatFormatting.YELLOW + name;
         }
-        return Component.literal(ChatFormatting.WHITE + name);
+        cachedName = Component.literal(ChatFormatting.WHITE + name);
+        return cachedName;
     }
 
     @Override

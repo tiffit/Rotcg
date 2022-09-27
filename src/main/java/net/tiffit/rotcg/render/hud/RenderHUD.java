@@ -1,5 +1,6 @@
 package net.tiffit.rotcg.render.hud;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -46,10 +47,6 @@ public class RenderHUD {
 //            String text = "Not Connected";
 //            font.drawStringWithShadow(text, scaledWidth/2 - font.getStringWidth(text)/2, 5, 0xffff0000);
 //        }
-//        if(RotCG.NETWORKER != null && RotCG.NETWORKER.playerState != null){
-//            String text = Arrays.toString(RotCG.NETWORKER.playerState.getAllEffects().toArray());
-//            font.drawStringWithShadow(text, scaledWidth/2 - font.getStringWidth(text)/2, 15, 0xffffffff);
-//        }
         if(!inGame)return;
         GameObjectState state = net.map.getSelfState();
         if(e instanceof RenderGuiOverlayEvent.Pre pre){
@@ -59,19 +56,10 @@ public class RenderHUD {
                 case ARMOR -> {
                     HUDMinimap.render(e, pre.getPoseStack(), state, scaledWidth, scaledHeight, mc, font);
                     HUDBossBars.render(e, state, scaledWidth, scaledHeight, mc, font);
+                    HUDNearbyPlayers.render(e, state, scaledWidth, scaledHeight, mc, font);
                 }
             }
         }
-//        if(elementType == RenderGameOverlayEvent.ElementType.HOTBAR){
-//            HUDHotbar.render(e, state, scaledWidth, scaledHeight, mc, font);
-//        }
-//        if(elementType == RenderGameOverlayEvent.ElementType.AIR){
-//            HUDMinimap.render(e, state, scaledWidth, scaledHeight, mc, font);
-//            RotMGEntity nearestEntity = WorldUtils.getClosestInteractableEntity(mc.player, ContainerEntity.class, PlayerEntity.class);
-//            if(nearestEntity != null){
-//                nearestEntity.renderInfo(e, state, scaledWidth, scaledHeight, mc, font);
-//            }
-//        }
-//        RenderSystem.color4f(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 }
