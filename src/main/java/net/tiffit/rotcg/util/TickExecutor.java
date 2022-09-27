@@ -40,8 +40,8 @@ public class TickExecutor {
     }
 
     public static void addClient(Runnable runnable){
-        synchronized (TASKS_UPDATE){
-            TASKS_UPDATE.add(runnable);
+        synchronized (TASKS_CLIENT){
+            TASKS_CLIENT.add(runnable);
         }
     }
 

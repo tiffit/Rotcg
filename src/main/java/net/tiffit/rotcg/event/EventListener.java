@@ -5,10 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -52,6 +55,7 @@ import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.screen.slot.RInventoryScreen;
 import net.tiffit.rotcg.util.ObjectEntityTypeMapping;
+import net.tiffit.rotcg.util.RotCGResourceLocation;
 import net.tiffit.rotcg.util.TickExecutor;
 import org.lwjgl.glfw.GLFW;
 
@@ -97,6 +101,8 @@ public class EventListener {
         EventHandler.addListener(ChatEvent.class, ChatEventHandler::handle);
         EventHandler.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
         EventHandler.addListener(AoeEvent.class, AoeEventHandler::handle);
+        EventHandler.addListener(EnemyHitEvent.class, SoundEventHandler::handleEnemyHit);
+        EventHandler.addListener(PlayerShootEvent.class, SoundEventHandler::handlePlayerShoot);
 
         Hooks.ShootDecider = new IShootDecider() {
             @Override
@@ -129,6 +135,12 @@ public class EventListener {
         RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS);
         networker.connect(Rotcg.TOKEN);
         Rotcg.ACTIVE_CONNECTION = networker;
+
+        TickExecutor.addClient(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            mc.getSoundManager().play(new SimpleSoundInstance(new RotCGResourceLocation("other_warp_done"), SoundSource.AMBIENT, 0.3f, 1, SoundEventHandler.src,
+                    false, 0, SoundInstance.Attenuation.LINEAR, Rotcg.SERVER_PLAYER.getX(), Rotcg.SERVER_PLAYER.getY(), Rotcg.SERVER_PLAYER.getZ(), false));
+        });
     }
 
     @SubscribeEvent

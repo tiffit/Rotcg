@@ -4,7 +4,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,7 +21,6 @@ import net.tiffit.realmnetapi.net.packet.out.UsePortalPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.render.hud.HUDMinimap;
 import net.tiffit.rotcg.screen.MenuScreen;
-import net.tiffit.rotcg.screen.slot.RContainerScreen;
 import net.tiffit.rotcg.util.TickExecutor;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -28,7 +30,6 @@ public class KeybindingManager {
     public static KeyMapping TOGGLE_ALLY_SHOOT;
     public static KeyMapping USE_ABILITY;
     public static KeyMapping ESCAPE;
-    public static KeyMapping OPEN_CONTAINER;
 
     public static KeyMapping MINIMAP_ZOOM_OUT;
     public static KeyMapping MINIMAP_ZOOM_IN;
@@ -41,19 +42,11 @@ public class KeybindingManager {
             if(net != null && net.connected){
                 RObject nearestPortal = net.map.getClosestGameObject(5, Constants.CLASSES_PORTAL);
                 if(nearestPortal == null) {
+                    mc.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:error")), 1f));
                     mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "Nothing to interact with!"), true);
                 }else{
+                    mc.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:button_click")), 1f));
                     net.send(new UsePortalPacketOut(nearestPortal.getState().objectId));
-                }
-            }
-        }
-        if(OPEN_CONTAINER.consumeClick()){
-            if(net != null && net.connected){
-                RObject nearestContainer = net.map.getClosestGameObject(3, Constants.CLASSES_CONTAINER);
-                if(nearestContainer == null) {
-                    mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "No container nearby!"), true);
-                }else{
-                    mc.setScreen(new RContainerScreen(nearestContainer));
                 }
             }
         }
@@ -82,8 +75,14 @@ public class KeybindingManager {
             switch (result){
                 case ON_COOLDOWN -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "On Cooldown"), true);
                 case NO_ABILITY -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_RED + "No Ability Equipped"), true);
-                case NOT_ENOUGH_MANA -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Not Enough Mana"), true);
+                case NOT_ENOUGH_MANA -> {
+                    mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Not Enough Mana"), true);
+                    mc.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:no_mana")), 1f));
+                }
                 case SILENCED -> mc.gui.setOverlayMessage(Component.literal(ChatFormatting.DARK_PURPLE + "Silenced"), true);
+            }
+            if(result != PlayerController.AbilityUseResult.SUCCESS && result != PlayerController.AbilityUseResult.NOT_ENOUGH_MANA){
+                mc.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:error")), 1f));
             }
             USE_ABILITY.setDown(false);
         }

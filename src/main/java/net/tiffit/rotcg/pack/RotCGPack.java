@@ -1,8 +1,10 @@
 package net.tiffit.rotcg.pack;
 
 import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -19,6 +21,7 @@ import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.registry.GroundBlock;
 import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -26,7 +29,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.*;
 import java.util.function.Predicate;
@@ -92,6 +94,14 @@ public class RotCGPack implements PackResources, Serializable {
         }
         resources.put(WHITE, imageToArray(whiteImg));
 
+        Rotcg.LOGGER.info(" - Sounds");
+        try {
+            loadSounds();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Rotcg.LOGGER.info(" - Blockstates");
         {//Blockstate
             ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
                 GroundBlock block = blockRegistry.get();
@@ -123,6 +133,7 @@ public class RotCGPack implements PackResources, Serializable {
                 resources.put(new RotCGResourceLocation("blockstates/" + blockRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
         }
+        Rotcg.LOGGER.info(" - Blocks");
         {//Block
             ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
                 Ground ground = blockRegistry.get().ground;
@@ -150,6 +161,7 @@ public class RotCGPack implements PackResources, Serializable {
                 resources.put(new RotCGResourceLocation("models/block/" + blockRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
         }
+        Rotcg.LOGGER.info(" - Equipment");
         {//Item: Equipment
             ModRegistry.R_EQUIPMENT.values().forEach(itemRegistry -> {
                 GameObject go = itemRegistry.get().go;
@@ -163,7 +175,7 @@ public class RotCGPack implements PackResources, Serializable {
                 resources.put(new RotCGResourceLocation("models/item/" + itemRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
         }
-
+        Rotcg.LOGGER.info(" - Regular Sprites");
         // Regular Sprites
         for (SpriteLocation loc : SheetReference.getSpriteLocations()) {
             BufferedImage img;
@@ -180,6 +192,7 @@ public class RotCGPack implements PackResources, Serializable {
                 resources.put(new RotCGResourceLocation("textures/" + loc.spritesheet.toLowerCase() + "_" + loc.index + ".png"), imageToArray(img));
             }
         }
+        Rotcg.LOGGER.info(" - Animated Sprites");
         // Animated Sprites
         for (SpriteLocation loc : SheetReference.getAnimatedSpriteLocations()) {
             Map<Vec2i, List<AnimSpriteDefinition>> map = SheetReference.getAnimatedSprites(loc).getMap();
@@ -207,61 +220,59 @@ public class RotCGPack implements PackResources, Serializable {
                 resources.put(new RotCGResourceLocation("textures/a_" + loc.spritesheet.toLowerCase() + "_" + loc.index + ".png"), imageToArray(img));
             }
         }
-//        try {
-//            loadSounds();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         Rotcg.LOGGER.info("Finished Loading Custom Resource Pack");
     }
 
-    private void loadSounds() throws URISyntaxException, IOException {
-//        List<String> sounds = new ArrayList<>();
-//        for(GameObject go : OBJECTS.values()){
-//            String[] soundArr = new String[]{go.hitSound, go.deathSound};
-//            for(String sound : soundArr){
-//                if(!sound.isEmpty() && !sounds.contains(sound)){
-//                    sounds.add(sound.trim());
-//                }
-//            }
-//        }
-//
-//        AudioAttributes audio = new AudioAttributes();
-//
-//        EncodingAttributes attrs = new EncodingAttributes();
-//        attrs.setFormat("ogg");
-//        attrs.setAudioAttributes(audio);
-//        Encoder encoder = new Encoder();
-//
-//        File folder = new File("./temp");
-//
-//        JsonObject soundsJson = new JsonObject();
-//
-//        for(String sound : sounds){
-//            try {
-//                File sub = new File(folder, sound + ".ogg");
-//                encoder.encode(new MultimediaObject(new URI("https://realmofthemadgodhrd.appspot.com/sfx/" + sound + ".mp3").toURL()), sub, attrs);
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                IOUtils.copy(new FileInputStream(sub), baos);
-//                byte[] byteArr = baos.toByteArray();
-//
-//                JsonObject soundEvent = new JsonObject();
-//                soundsJson.add(sound.replaceAll("/", "."), soundEvent);
-//                JsonObject soundJson = new JsonObject();
-//                soundJson.addProperty("name", RotCG.MODID + ":" + sound);
-//                soundJson.addProperty("stream", false);
-//                JsonArray jsonArray = new JsonArray();
-//                jsonArray.add(soundJson);
-//                soundEvent.add("sounds", jsonArray);
-//
-//                resources.put(new RotCGResourceLocation("sounds/" + sound + ".ogg"), byteArr);
-//            } catch (InputFormatException ignored) {
-//            } catch (EncoderException e) {
-//                e.printStackTrace();
-//            }
-//            resources.put(new RotCGResourceLocation("sounds.json"), soundsJson.toString().getBytes());
-//        }
-//        FileUtils.deleteDirectory(folder);
+    private void loadSounds() throws IOException{
+        File soundsFolder = new File("./assets/sounds");
+        JsonObject soundsJson = new JsonObject();
+        for (File file : Files.fileTraverser().breadthFirst(soundsFolder)) {
+            if(file.isDirectory())continue;
+            try {
+                String soundName = file.getPath().substring(soundsFolder.getPath().length())
+                        .replaceAll("\\\\", "/")
+                        .replace(".ogg", "")
+                        .substring(1)
+                        .trim()
+                        .toLowerCase();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                IOUtils.copy(new FileInputStream(file), baos);
+                byte[] byteArr = baos.toByteArray();
+
+                JsonObject soundEvent = new JsonObject();
+                soundsJson.add(soundName.replaceAll("/", "."), soundEvent);
+                JsonObject soundJson = new JsonObject();
+                soundJson.addProperty("name", Rotcg.MODID + ":" + soundName);
+                soundJson.addProperty("stream", false);
+                JsonArray jsonArray = new JsonArray();
+                jsonArray.add(soundJson);
+                soundEvent.add("sounds", jsonArray);
+                resources.put(new RotCGResourceLocation("sounds/" + soundName + ".ogg"), byteArr);
+            }catch (Exception ex){
+                Rotcg.LOGGER.error("Unable to load sound " + file);
+                ex.printStackTrace();
+            }
+        }
+        resources.put(new RotCGResourceLocation("sounds.json"), soundsJson.toString().getBytes());
+    }
+
+    public static void convertSounds() throws IOException, InterruptedException  {
+        File tempSoundFolder = new File("./assets/sounds_temp");
+        File newSoundFolder = new File("./assets/sounds");
+        for (File file : Files.fileTraverser().breadthFirst(tempSoundFolder)) {
+            if(file.isDirectory())continue;
+            if(file.getName().endsWith(".meta"))continue;
+            File destFile = new File(newSoundFolder, file.getPath().substring(tempSoundFolder.getPath().length()).replace(".wav", ".ogg"));
+            System.out.println(file + " -> " + destFile);
+            destFile.getParentFile().mkdirs();
+            if(file.getPath().endsWith(".ogg")){
+                Files.copy(file, destFile);
+            }else{
+                String[] cmd = {"ffmpeg.exe", "-y", "-i", file.toString(), destFile.toString()};
+                Process process = new ProcessBuilder(cmd).start();
+                process.waitFor();
+            }
+        }
     }
 
     @Override

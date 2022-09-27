@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
@@ -66,7 +66,7 @@ public class MoveableSlotScreen extends Screen {
                                 if(itemObj.consumable){
                                     if(itemObj.potion){
                                         assert minecraft != null;
-                                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.WANDERING_TRADER_DRINK_POTION, 1f));
+                                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:use_potion")), 1f));
                                     }
                                     SlotObjectData data = new SlotObjectData(slot.state.objectId, slot.getPacketSlot(), slot.getItemId());
                                     net.send(new UseItemPacketOut(RealmNetworker.getTime(), data, Vec2f.ZERO,0));
@@ -83,6 +83,7 @@ public class MoveableSlotScreen extends Screen {
                         }
                         SlotObjectData origData = new SlotObjectData(dragSlot.state.objectId, dragSlot.getPacketSlot(), dragSlot.getItemId());
                         SlotObjectData newData = new SlotObjectData(slot.state.objectId, slot.getPacketSlot(), slot.getItemId());
+                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:inventory_move_item")), 1f));
                         Rotcg.ACTIVE_CONNECTION.send(new InvSwapPacketOut(RealmNetworker.getTime(), net.map.getPlayerPos().getPos(), origData, newData));
                         dragSlot = null;
                         return true;
@@ -92,6 +93,7 @@ public class MoveableSlotScreen extends Screen {
         }
         if(dragSlot != null && dragSlot.state == net.map.getSelfState()){
             SlotObjectData data = new SlotObjectData(dragSlot.state.objectId, dragSlot.getPacketSlot(), dragSlot.getItemId());
+            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:loot_appears")), 1f));
             net.send(new InvDropPacketOut(data));
         }
         dragSlot = null;
