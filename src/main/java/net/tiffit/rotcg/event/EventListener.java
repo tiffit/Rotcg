@@ -104,6 +104,8 @@ public class EventListener {
         EventHandler.addListener(AoeEvent.class, AoeEventHandler::handle);
         EventHandler.addListener(EnemyHitEvent.class, SoundEventHandler::handleEnemyHit);
         EventHandler.addListener(PlayerShootEvent.class, SoundEventHandler::handlePlayerShoot);
+        EventHandler.addListener(DamageEvent.class, SoundEventHandler::handleDamage);
+        EventHandler.addListener(DeathEvent.class, DeathEventHandler::handle);
 
         Hooks.ShootDecider = new IShootDecider() {
             @Override

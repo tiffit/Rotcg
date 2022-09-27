@@ -7,11 +7,16 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.tiffit.realmnetapi.api.event.DamageEvent;
 import net.tiffit.realmnetapi.api.event.EnemyHitEvent;
 import net.tiffit.realmnetapi.api.event.PlayerShootEvent;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
+import net.tiffit.realmnetapi.map.RMap;
+import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.projectile.ProjectileState;
+import net.tiffit.realmnetapi.net.packet.in.DamagePacketIn;
 import net.tiffit.realmnetapi.util.math.Vec2f;
+import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
 import net.tiffit.rotcg.util.TickExecutor;
 
@@ -45,6 +50,27 @@ public class SoundEventHandler {
                 mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.PLAYERS, 1, 1, src,
                         false, 0, SoundInstance.Attenuation.LINEAR, mc.player.getX(), mc.player.getY(), mc.player.getZ(), false));
             });
+        }
+    }
+
+    public static void handleDamage(DamageEvent damageEvent){
+        DamagePacketIn packet = damageEvent.packet();
+        RMap map = Rotcg.ACTIVE_CONNECTION.map;
+        if(packet.objectId == map.getObjectId() && map.getEntityList().has(packet.targetId)){
+            if(packet.damageAmount > 0){
+                RObject obj = map.getEntityList().get(packet.targetId);
+                GameObject go = obj.getGameObject();
+                String sound = packet.kill ? go.deathSound : go.hitSound;
+                if(!Strings.isNullOrEmpty(sound)){
+                    Vec2f position = obj.getState().position;
+                    ResourceLocation rl = new RotCGResourceLocation(sound.replaceAll("/", "."));
+                    TickExecutor.addClient(() -> {
+                        Minecraft mc = Minecraft.getInstance();
+                        mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.HOSTILE, 1, 1, src,
+                                false, 0, SoundInstance.Attenuation.LINEAR, position.x(), 65, position.y(), false));
+                    });
+                }
+            }
         }
     }
 
