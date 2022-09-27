@@ -10,6 +10,7 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -20,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -84,8 +84,9 @@ public class EventListener {
         EventHandler.clearListeners();
         Rotcg.SERVER_PLAYER = (ServerPlayer) e.getEntity();
         Rotcg.SERVER_PLAYER.setGameMode(GameType.ADVENTURE);
-        Level level = Rotcg.SERVER_PLAYER.getLevel();
+        ServerLevel level = Rotcg.SERVER_PLAYER.getLevel();
         GameRules gr = level.getGameRules();
+        level.setDayTime(12000);
         gr.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, level.getServer());
         gr.getRule(GameRules.RULE_DAYLIGHT).set(false, level.getServer());
         gr.getRule(GameRules.RULE_WEATHER_CYCLE).set(false, level.getServer());
@@ -131,7 +132,7 @@ public class EventListener {
 
         Hooks.ProjectileListener = ProjectileEntityContainer::new;
 
-        System.out.println("Connecting to " + Rotcg.ADDRESS);
+        Rotcg.LOGGER.info("Connecting to " + Rotcg.ADDRESS);
         RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS);
         networker.connect(Rotcg.TOKEN);
         Rotcg.ACTIVE_CONNECTION = networker;
@@ -199,7 +200,7 @@ public class EventListener {
                     Inventory inv = player.getInventory();
                     ResourceLocation itemRl = new ResourceLocation(Rotcg.MODID, "item_" + Rotcg.ACTIVE_CONNECTION.map.getSelfState().<Integer>getStat(StatType.INVENTORY_0));
                     ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(itemRl));
-                    if(!stack.isEmpty() && inv.getSelected().isEmpty()) {
+                    if(!stack.isEmpty()) {
                         inv.setItem(0, stack);
                     }
                     updateInventory = false;
