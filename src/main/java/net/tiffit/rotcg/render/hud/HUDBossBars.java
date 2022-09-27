@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.rotcg.Rotcg;
@@ -33,8 +34,12 @@ public class HUDBossBars {
             int left = 0;
             int top = i*(eachHeight+20);
             int barWidth = (int)(hpPercent * eachWidth);
+            int color = 0xff_ff_00_00;
+            if(enemyState.hasEffect(ConditionEffect.INVULNERABLE) || enemyState.hasEffect(ConditionEffect.INVULNERABLE)){
+                color = 0xff_1e30ca;
+            }
             GuiComponent.fill(stack, left, top, left + eachWidth, top + eachHeight, 0x55000000);
-            GuiComponent.fill(stack, left, top, left + barWidth, top + eachHeight, 0xff_ff_00_00);
+            GuiComponent.fill(stack, left, top, left + barWidth, top + eachHeight, color);
             String enemyName = Strings.isNullOrEmpty(robj.getGameObject().displayid) ? robj.getGameObject().id : robj.getGameObject().displayid;
             RenderUtils.drawStringOutline(font, stack, enemyName, left + 1, top - 10, 0xffffffff, 0);
             String text = hp + "/" + maxHp + " (" + (int)(hpPercent * 100) + "%)";

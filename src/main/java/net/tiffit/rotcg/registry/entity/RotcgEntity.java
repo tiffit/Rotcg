@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fluids.FluidType;
+import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
@@ -114,7 +115,7 @@ public abstract class RotcgEntity extends LivingEntity{
     public boolean renderHealth(){
         if(getReference() == null)return false;
         GameObjectState state = getReference().getState();
-        return state.getGameObject() != null && state.getGameObject().enemy && state.hasStat(StatType.HP);
+        return state.getGameObject() != null && !state.getGameObject().invincible && state.getGameObject().enemy && state.hasStat(StatType.HP) && !state.hasEffect(ConditionEffect.INVINCIBLE);
     }
 
     @Override

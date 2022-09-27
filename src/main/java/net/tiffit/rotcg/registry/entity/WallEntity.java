@@ -38,4 +38,8 @@ public class WallEntity extends RotcgEntity {
         super.remove(pReason);
     }
 
+    @Override
+    public boolean renderHealth() {
+        return false;
+    }
 }

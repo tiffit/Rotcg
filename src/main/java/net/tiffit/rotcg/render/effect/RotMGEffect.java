@@ -2,8 +2,11 @@ package net.tiffit.rotcg.render.effect;
 
 import net.tiffit.realmnetapi.util.math.Vec2f;
 
+import java.util.HashMap;
+
 public abstract class RotMGEffect {
 
+    private static final HashMap<Integer, VisualEffect> ID_MAP = new HashMap<>();
     protected int targetObjectId, color;
     protected Vec2f start, end;
     public double duration;
@@ -57,13 +60,11 @@ public abstract class RotMGEffect {
         VisualEffect(int id, Class<? extends RotMGEffect> effectClass){
             this.id = id;
             this.effectClass = effectClass;
+            ID_MAP.put(id, this);
         }
 
         public static VisualEffect byId(int id){
-            for(VisualEffect effect : values()){
-                if(effect.id == id)return effect;
-            }
-            return UNKNOWN_EFFECT_TYPE;
+            return ID_MAP.getOrDefault(id, UNKNOWN_EFFECT_TYPE);
         }
     }
 }

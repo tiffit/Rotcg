@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -178,7 +179,9 @@ public class EventListener {
                         bps *= ground.speed;
                     }
                     double mcSpeed = bps / 4.3478f;
-                    player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.11f * mcSpeed);
+                    AttributeInstance attrib = player.getAttribute(Attributes.MOVEMENT_SPEED);
+                    attrib.setBaseValue(0.11f * mcSpeed);
+                    attrib.removeModifiers();
                 }
                 if(updateInventory && e.side == LogicalSide.SERVER){ //Held Item
                     Inventory inv = player.getInventory();

@@ -21,7 +21,11 @@ public class MenuScreen extends Screen {
     protected void init() {
         addRenderableWidget(new Button(width / 2 - 100, 100, 200, 20, Component.literal("Connect to RotMG"), p_93751_ -> {
             assert minecraft != null;
-            this.minecraft.setScreen(new CharSelectScreen());
+            try{
+                this.minecraft.setScreen(new CharSelectScreen());
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
         }));
     }
 

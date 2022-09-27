@@ -209,7 +209,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         float scaleVal = size / 100F;
         if(size > 0){
             BufferedImage img = texture.animated ? SheetReference.getAnimatedSprite(texture.toSpriteLocation()) : SheetReference.getSprite(texture.toSpriteLocation());
-            if(img != null)scaleVal *= img.getWidth() / 8.0f;
+            if(img != null)scaleVal *= Math.max(img.getWidth(), img.getHeight()) / 8.0f;
             scaleVal = getScaleValue(scaleVal);
             if(go.drawOnGround){
                 stack.translate(0, 0.0001, 0.5f * img.getWidth() / 8.0f);

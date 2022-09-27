@@ -23,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -33,11 +35,17 @@ public class RotCGPack implements PackResources, Serializable {
 
     private static Gson GSON = new GsonBuilder().create();
     public static RotCGResourceLocation WHITE = new RotCGResourceLocation("textures/white.png");
+    private static final int[] POW_2 = new int[]{2, 4, 8, 16, 32, 64, 128};
     public HashMap<RotCGResourceLocation, byte[]> resources = new HashMap<>();
+    private static final HashSet<Integer> powSet = new HashSet<>();
 
     public RotCGPack(){
         File save = new File("./cache/pack");
         if(!save.exists()){
+            powSet.clear();
+            for (int pow : POW_2) {
+                powSet.add(pow);
+            }
             init();
             try {
                 Rotcg.LOGGER.info("Writing pack");
@@ -158,11 +166,17 @@ public class RotCGPack implements PackResources, Serializable {
 
         // Regular Sprites
         for (SpriteLocation loc : SheetReference.getSpriteLocations()) {
-            BufferedImage img = SheetReference.getSprite(loc);
+            BufferedImage img;
+            if(loc.spritesheet.equals("invisible") || (loc.spritesheet.equals("lofiEnvironment") && loc.index == 0xff)){
+                img = blackImg;
+            }else{
+                img = SheetReference.getSprite(loc);
+            }
             if(img != null){
                 if(img.getWidth() == 10 && img.getHeight() == 10){
                     img = img.getSubimage(1, 1, 8, 8);
                 }
+                img = resolutionFix(img);
                 resources.put(new RotCGResourceLocation("textures/" + loc.spritesheet.toLowerCase() + "_" + loc.index + ".png"), imageToArray(img));
             }
         }
@@ -176,6 +190,7 @@ public class RotCGPack implements PackResources, Serializable {
                     AnimSpriteDefinition def = entry.getValue().get(i);
                     BufferedImage img = SheetReference.getSprite(def.spriteData);
                     if(img != null){
+                        img = resolutionFix(img);
                         StringBuilder path = new StringBuilder("textures/a_");
                         path.append(loc.spritesheet.toLowerCase()).append("_");
                         path.append(loc.index);
@@ -351,5 +366,24 @@ public class RotCGPack implements PackResources, Serializable {
         }
         path.append(".png");
         return new RotCGResourceLocation(path.toString());
+    }
+
+    private static BufferedImage resolutionFix(BufferedImage img){
+        if(img.getWidth() != img.getHeight() || !powSet.contains(img.getWidth())){
+            int currentSize = Math.max(img.getWidth(), img.getHeight());
+            int resultSize = currentSize;
+            for (int i : POW_2) {
+                if(currentSize <= i){
+                    resultSize = i;
+                    break;
+                }
+            }
+            BufferedImage newImg = new BufferedImage(resultSize, resultSize, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = newImg.getGraphics();
+            g.drawImage(img, 0, img.getHeight(), null);
+            g.dispose();
+            img = newImg;
+        }
+        return img;
     }
 }
