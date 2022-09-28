@@ -141,6 +141,7 @@ public class EventListener {
 
         TickExecutor.addClient(() -> {
             Minecraft mc = Minecraft.getInstance();
+            mc.getWindow().setTitle("Rotcg - " + Rotcg.SERVER.name());
             mc.getSoundManager().play(new SimpleSoundInstance(new RotCGResourceLocation("other_warp_done"), SoundSource.AMBIENT, 0.3f, 1, SoundEventHandler.src,
                     false, 0, SoundInstance.Attenuation.LINEAR, Rotcg.SERVER_PLAYER.getX(), Rotcg.SERVER_PLAYER.getY(), Rotcg.SERVER_PLAYER.getZ(), false));
         });

@@ -32,23 +32,24 @@ public class HUDMinimap {
         double texU = mc.player.getX() - viewRange;
         double texV = mc.player.getZ() - viewRange;
 
-        if(texU < 0 || texU + viewRange >= map.getWidth() || texV < 0 || texV + viewRange >= map.getHeight()){
-            texU = 0;
-            texV = 0;
-            viewRange = map.getWidth() / 2 - 1;
-        }
+//        if(texU < 0 || texU + viewRange >= map.getWidth() || texV < 0 || texV + viewRange >= map.getHeight()){
+//            texU = 0;
+//            texV = 0;
+//            viewRange = map.getWidth() / 2 - 1;
+//        }
 
         MinimapBuilder minimap = new MinimapBuilder(mc.player,scaledWidth - mapSize - 5, 5, texU, texV, viewRange, mapSize, map);
         minimap.beginRender(ps);
         minimap.render(ps);
         for(RObject entity : map.getEntityList().getEntities()){
-            int color = 0x0;
+            int color;
             GameObjectState entityState = entity.getState();
             GameObject go = entityState.getGameObject();
             if(go == null)continue;
-            if(go.enemy)color = 0xffff0000;
+            if(go.enemy && !go.staticObject && !go.enemyOccupySquare && go.size >= 1)color = 0xffff0000;
             else if(go.player)color = 0xffebe134;
-            if(color != 0x0)minimap.renderDot(ps, entity.getCorrectedX(), entity.getCorrectedY(), color);
+            else continue;
+            minimap.renderDot(ps, entity.getCorrectedX(), entity.getCorrectedY(), color);
         }
         minimap.renderDot(ps, mc.player.getX(), mc.player.getZ(), 0xff0000ff);
         minimap.endRender(ps);

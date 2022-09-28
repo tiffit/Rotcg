@@ -1,5 +1,6 @@
 package net.tiffit.rotcg.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -98,6 +99,8 @@ public class TickExecutor {
 
     public static void trackEffect(RotMGEffect effect) {
         addRender(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if(mc.player == null || mc.level == null)return;
             if(effect.duration > 0)TRACKED_EFFECTS.add(effect);
             effect.onCreate();
         });
