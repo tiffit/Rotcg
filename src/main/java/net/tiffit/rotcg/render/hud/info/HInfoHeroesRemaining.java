@@ -17,21 +17,30 @@ public class HInfoHeroesRemaining {
         RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
         RMap map = net.map;
         int remaining = map.getHeroesRemaining();
-        if(remaining >= 0){
+        if(remaining >= 0 || map.getQuestObjectId() > 0){
             PoseStack stack = e.getPoseStack();
             stack.pushPose();
             stack.translate(5, data.getPosY(), 0);
-            font.drawShadow(stack, ChatFormatting.BOLD + Rotcg.SERVER.name() + " " + map.getRealmName().substring(12), 5, -10, 0xff_ff_ff_ff);
-            font.drawShadow(stack, "• " + ChatFormatting.GOLD + remaining + ChatFormatting.RESET + " remaining heroes", 5, 0, 0xff_e8af5a);
-            data.increasePosY(25);
+            String worldName =  map.getRealmName();
+            if(worldName.startsWith("NexusPortal."))worldName = worldName.substring(12);
+            font.drawShadow(stack, ChatFormatting.BOLD + Rotcg.SERVER.name() + " " + worldName, 5, -10, 0xff_ff_ff_ff);
+            int yPos = 0;
+            font.drawShadow(stack, "• Explore " + ChatFormatting.GOLD + map.getName(), 5, yPos, 0xff_e8af5a);
+            yPos += 10;
 
             RObject questObj = map.getEntityList().get(map.getQuestObjectId());
             if(questObj != null){
                 GameObject go = questObj.getGameObject();
                 String name = go.displayid.isEmpty() ? go.id : go.displayid;
-                font.drawShadow(stack, "• Kill " + ChatFormatting.GOLD + name, 5, 10, 0xff_e8af5a);
-                data.increasePosY(10);
+                font.drawShadow(stack, "• Kill " + ChatFormatting.GOLD + name, 5, yPos, 0xff_e8af5a);
+                yPos+= 10;
             }
+            if(remaining >= 0){
+                font.drawShadow(stack, "• Vanquish " + ChatFormatting.GOLD + remaining + ChatFormatting.RESET + " heroes", 5, yPos, 0xff_e8af5a);
+                yPos+= 10;
+            }
+
+            data.increasePosY(15 + yPos);
             stack.popPose();
         }
     }

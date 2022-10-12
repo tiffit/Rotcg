@@ -54,6 +54,7 @@ import net.tiffit.rotcg.registry.entity.RotcgEntityContainer;
 import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.screen.slot.RInventoryScreen;
+import net.tiffit.rotcg.util.MoveSpeedUtil;
 import net.tiffit.rotcg.util.ObjectEntityTypeMapping;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
 import net.tiffit.rotcg.util.TickExecutor;
@@ -194,9 +195,8 @@ public class EventListener {
                         Ground ground = groundBlock.ground;
                         bps *= ground.speed;
                     }
-                    double mcSpeed = bps / 4.3478f;
                     AttributeInstance attrib = player.getAttribute(Attributes.MOVEMENT_SPEED);
-                    attrib.setBaseValue(0.11f * mcSpeed);
+                    attrib.setBaseValue(MoveSpeedUtil.bpsToMoveSpeed(bps));
                     attrib.removeModifiers();
                 }
                 if(updateInventory && e.side == LogicalSide.SERVER){ //Held Item

@@ -15,8 +15,8 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 import net.tiffit.realmnetapi.assets.OBJModel;
 import net.tiffit.realmnetapi.assets.spritesheet.AnimMap;
 import net.tiffit.realmnetapi.assets.spritesheet.AnimSpriteDefinition;
@@ -201,8 +201,10 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         }
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         if(!go.drawOnGround) {
-            Player player = Minecraft.getInstance().player;
-            stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(player.getX() - entity.getX(), player.getZ() - entity.getZ())));
+            //Entity player = Minecraft.getInstance().player;
+            //stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(player.getX() - entity.getX(), player.getZ() - entity.getZ())));
+            Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(cameraPos.x() - entity.getX(), cameraPos.z() - entity.getZ())));
         }else{
             if(entity.getX() == (int)entity.getX() && entity.getZ() == (int)entity.getZ()){
                 stack.translate(0.5f, 0, 0.5f);

@@ -57,6 +57,14 @@ public class Minimap {
     private static final HashMap<Ground, Integer> MAP_COLOR_CACHE = new HashMap<>();
     private int getTileColor(Ground ground){
         if(MAP_COLOR_CACHE.containsKey(ground))return MAP_COLOR_CACHE.get(ground);
+        if(ground.color != 0){
+            int color = (ground.color & 0x00_00_ff) << 16;
+            color += (ground.color & 0x00_ff_00);
+            color += (ground.color & 0xff_00_00) >> 16;
+            color += 0xff_00_00_00;
+            MAP_COLOR_CACHE.put(ground, color);
+            return color;
+        }
         if(ground.textures.size() == 0){
             MAP_COLOR_CACHE.put(ground, invisibleColor);
             return invisibleColor;
