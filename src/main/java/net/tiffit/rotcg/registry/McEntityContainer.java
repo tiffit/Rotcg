@@ -48,4 +48,8 @@ public abstract class McEntityContainer<R, E extends LivingEntity> implements IO
             removeEntity();
         }
     }
+
+    public E getEntity(){
+        return entity;
+    }
 }

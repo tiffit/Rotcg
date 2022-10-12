@@ -42,7 +42,7 @@ public class HUDNearbyPlayers {
             RObject player = tuple.a();
             GameObjectState state = player.getState();
             String name = state.hasStat(StatType.NAME) ? state.<String>getStat(StatType.NAME).split(",")[0] : "None";
-            int distance = (int)Math.sqrt(tuple.b());
+            int distance = tuple.b().intValue();
             stack.pushPose();
             stack.translate(scaledWidth - 100, 110, 0);
             stack.scale(0.75f, 0.75f, 1);

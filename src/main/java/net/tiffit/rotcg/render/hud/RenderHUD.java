@@ -9,6 +9,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.rotcg.Rotcg;
+import net.tiffit.rotcg.render.hud.info.HInfoBossBars;
+import net.tiffit.rotcg.render.hud.info.HInfoHeroesRemaining;
+import net.tiffit.rotcg.render.hud.info.HInfoNearbyInteractable;
+import net.tiffit.rotcg.render.hud.info.HUDInfoData;
 
 @Mod.EventBusSubscriber
 public class RenderHUD {
@@ -50,12 +54,17 @@ public class RenderHUD {
         if(!inGame)return;
         GameObjectState state = net.map.getSelfState();
         if(e instanceof RenderGuiOverlayEvent.Pre pre){
+            HUDInfoData data = new HUDInfoData();
+            data.increasePosY(20);
             switch (overlayType) {
                 case HEALTH, FOOD, EXPERIENCE -> HUDBars.render(e, overlayType, state, scaledWidth, scaledHeight, mc, font);
                 case HOTBAR -> HUDHotbar.render(e, state, scaledWidth, scaledHeight, mc, font);
                 case ARMOR -> {
+                    HInfoHeroesRemaining.render(e, data, mc, font);
+                    HInfoBossBars.render(e, data, mc, font);
+                    HInfoNearbyInteractable.render(e, data, mc, font);
+
                     HUDMinimap.render(e, pre.getPoseStack(), state, scaledWidth, scaledHeight, mc, font);
-                    HUDBossBars.render(e, state, scaledWidth, scaledHeight, mc, font);
                     HUDNearbyPlayers.render(e, state, scaledWidth, scaledHeight, mc, font);
                 }
             }

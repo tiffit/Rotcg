@@ -26,6 +26,8 @@ import net.tiffit.rotcg.util.TickExecutor;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class KeybindingManager {
 
+    public static final int PORTAL_RANGE = 2;
+
     public static KeyMapping INTERACT;
     public static KeyMapping TOGGLE_ALLY_SHOOT;
     public static KeyMapping USE_ABILITY;
@@ -40,7 +42,7 @@ public class KeybindingManager {
         Minecraft mc = Minecraft.getInstance();
         if(INTERACT.isDown()){
             if(net != null && net.connected){
-                RObject nearestPortal = net.map.getClosestGameObject(5, Constants.CLASSES_PORTAL);
+                RObject nearestPortal = net.map.getClosestGameObject(PORTAL_RANGE, Constants.CLASSES_PORTAL);
                 if(nearestPortal == null) {
                     mc.getSoundManager().play(SimpleSoundInstance.forUI(new SoundEvent(new ResourceLocation("rotcg:error")), 1f));
                     mc.gui.setOverlayMessage(Component.literal(ChatFormatting.RED + "Nothing to interact with!"), true);

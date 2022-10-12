@@ -47,14 +47,7 @@ public class RInventoryScreen extends MoveableSlotScreen {
             }
         }
         RMap map = Rotcg.ACTIVE_CONNECTION.map;
-        List<RObject> containers = map.getEntityList().getAll(object -> {
-            if(!object.getGameObject().goClass.equals("Container"))return false;
-            Vec2f playerPos = map.getPlayerPos().getPos();
-            if(playerPos.distanceSqr(object.getCurrentPos()) <= 1){
-                return true;
-            }
-            return false;
-        });
+        List<RObject> containers = getNearbyEntities(map);
 
         for (int i = 0; i < containers.size(); i++) {
             RObject containerObj = containers.get(i);
@@ -66,5 +59,16 @@ public class RInventoryScreen extends MoveableSlotScreen {
                 }
             }
         }
+    }
+
+    public static List<RObject> getNearbyEntities(RMap map){
+        return map.getEntityList().getAll(object -> {
+            if(!object.getGameObject().goClass.equals("Container"))return false;
+            Vec2f playerPos = map.getPlayerPos().getPos();
+            if(playerPos.distanceSqr(object.getCurrentPos()) <= 1){
+                return true;
+            }
+            return false;
+        });
     }
 }
