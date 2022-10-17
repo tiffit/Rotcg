@@ -54,10 +54,10 @@ public class ProjectileEntityRenderer extends EntityRenderer<ProjectileEntity> {
         vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, height,0.5F, 255, 255, 255, 255,1, 1, packedLight);
         vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, height,-0.5F, 255, 255, 255, 255,1, 0, packedLight);
 
-        vertex(ivertexbuilder, matrix4f, matrix3f, -0.5f, 0.1f,-0.5f, 0, 0, 0, 50,0, 0, packedLight);
-        vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.1f,0.5f, 0, 0, 0, 50,0, 1, packedLight);
-        vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.1f,0.5F, 0, 0, 0, 50,1, 1, packedLight);
-        vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.1f,-0.5F, 0, 0, 0, 50,1, 0, packedLight);
+//        vertex(ivertexbuilder, matrix4f, matrix3f, -0.5f, 0.1f,-0.5f, 0, 0, 0, 50,0, 0, packedLight);
+//        vertex(ivertexbuilder, matrix4f, matrix3f, -0.5F, 0.1f,0.5f, 0, 0, 0, 50,0, 1, packedLight);
+//        vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.1f,0.5F, 0, 0, 0, 50,1, 1, packedLight);
+//        vertex(ivertexbuilder, matrix4f, matrix3f, 0.5F, 0.1f,-0.5F, 0, 0, 0, 50,1, 0, packedLight);
         stack.popPose();
         RenderSystem.disableBlend();
         super.render( entity,  yaw,  partialTicks,  stack,  buffer,  packedLight);

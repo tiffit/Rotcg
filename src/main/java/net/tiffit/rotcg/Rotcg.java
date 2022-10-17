@@ -106,6 +106,7 @@ public class Rotcg {
         ModRegistry.BLOCKS.register(modEventBus);
         ModRegistry.ITEMS.register(modEventBus);
         ModRegistry.ENTITIES.register(modEventBus);
+        ModRegistry.BLOCK_ENTITY_TYPE.register(modEventBus);
 
         switch (RealmNetApi.ENV){
             case PRODUCTION -> TOKEN = RealmAuth.authenticate(CONFIG.prodUsername, CONFIG.prodPassword);

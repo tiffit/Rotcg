@@ -7,21 +7,28 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.registries.RegistryObject;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.rotcg.KeybindingManager;
+import net.tiffit.rotcg.registry.block.AnimateGroundBlock;
+import net.tiffit.rotcg.registry.block.GroundBlock;
+import net.tiffit.rotcg.registry.block.WallBlock;
 import net.tiffit.rotcg.registry.entity.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static net.tiffit.rotcg.Rotcg.MODID;
@@ -29,9 +36,14 @@ import static net.tiffit.rotcg.Rotcg.MODID;
 @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModRegistry {
 
+    @ObjectHolder(registryName = "block_entity_type", value = "rotcg:animateground")
+    public static BlockEntityType<AnimateGroundBlock.AnimateGroundBlockEntity> animateGroundBlockEntity;
+    private static final List<Block> animatedGroundBlocks = new LinkedList<>();
+
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPE = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
 
     public static final HashMap<Integer, RegistryObject<GroundBlock>> R_GROUNDS = new HashMap<>();
     public static final HashMap<Integer, RegistryObject<WallBlock>> R_WALLS = new HashMap<>();
@@ -39,7 +51,13 @@ public class ModRegistry {
 
     public static void register(){
         for (Map.Entry<Integer, Ground> entry : XMLLoader.GROUNDS.entrySet()) {
-            RegistryObject<GroundBlock> blockRegistry = BLOCKS.register("ground_" + entry.getKey(), () -> new GroundBlock(entry.getValue()));
+            RegistryObject<GroundBlock> blockRegistry = BLOCKS.register("ground_" + entry.getKey(), () -> {
+                if(entry.getValue().animate == null)
+                    return new GroundBlock(entry.getValue());
+                AnimateGroundBlock block = new AnimateGroundBlock(entry.getValue());
+                animatedGroundBlocks.add(block);
+                return block;
+            });
             R_GROUNDS.put(entry.getKey(), blockRegistry);
         }
 
@@ -52,6 +70,9 @@ public class ModRegistry {
             RegistryObject<EquipmentItem> itemRegistry = ITEMS.register("item_" + equipment.type, () -> new EquipmentItem(equipment));
             R_EQUIPMENT.put(equipment.type, itemRegistry);
         }
+
+        BLOCK_ENTITY_TYPE.register("animateground", () -> BlockEntityType.Builder.of(AnimateGroundBlock.AnimateGroundBlockEntity::new, animatedGroundBlocks.toArray(Block[]::new))
+                .build(null));
 
         PlayerEntity.TYPE = registerEntity(PlayerEntity::new, "player", 1, 1);
         GameObjectEntity.TYPE = registerEntity(GameObjectEntity::new, "generic", 1, 1);

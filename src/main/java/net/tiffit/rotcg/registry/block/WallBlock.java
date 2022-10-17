@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.registry;
+package net.tiffit.rotcg.registry.block;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Material;

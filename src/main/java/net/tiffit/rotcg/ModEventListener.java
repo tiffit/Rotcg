@@ -3,13 +3,17 @@ package net.tiffit.rotcg;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.tiffit.rotcg.pack.RotCGPackFinder;
+import net.tiffit.rotcg.registry.ModRegistry;
 import net.tiffit.rotcg.registry.entity.*;
 import net.tiffit.rotcg.render.entity.*;
+import net.tiffit.rotcg.render.model.AnimateGroundBER;
+import net.tiffit.rotcg.render.model.GroundBlockModelLoader;
 
 import java.util.function.Supplier;
 
@@ -32,6 +36,9 @@ public class ModEventListener {
         e.registerEntityRenderer(WallOfFameEntity.TYPE.get(), WallOfFameEntityRenderer::new);
 
         e.registerEntityRenderer(ProjectileEntity.TYPE.get(), ProjectileEntityRenderer::new);
+
+
+        e.registerBlockEntityRenderer(ModRegistry.animateGroundBlockEntity, pContext -> new AnimateGroundBER());
     }
 
     @SubscribeEvent
@@ -46,5 +53,11 @@ public class ModEventListener {
         e.put(WallOfFameEntity.TYPE.get(), factory.get());
 
         e.put(ProjectileEntity.TYPE.get(), factory.get());
+
+    }
+
+    @SubscribeEvent
+    public static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders e) {
+        e.register("grounds", new GroundBlockModelLoader());
     }
 }

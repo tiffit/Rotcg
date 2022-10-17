@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.registry;
+package net.tiffit.rotcg.registry.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.rotcg.util.MoveSpeedUtil;
 
-public class GroundBlock extends Block {
+public class GroundBlock extends Block{
 
     public static IntegerProperty TEXTUREUSED = IntegerProperty.create("textureused", 0, 16);
 

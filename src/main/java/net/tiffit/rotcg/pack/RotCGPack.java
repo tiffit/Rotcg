@@ -18,8 +18,8 @@ import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.assets.xml.Texture;
 import net.tiffit.realmnetapi.util.math.Vec2i;
 import net.tiffit.rotcg.Rotcg;
-import net.tiffit.rotcg.registry.GroundBlock;
 import net.tiffit.rotcg.registry.ModRegistry;
+import net.tiffit.rotcg.registry.block.GroundBlock;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,6 @@ import java.util.function.Predicate;
 public class RotCGPack implements PackResources, Serializable {
 
     private static Gson GSON = new GsonBuilder().create();
-    public static RotCGResourceLocation WHITE = new RotCGResourceLocation("textures/white.png");
     private static final int[] POW_2 = new int[]{2, 4, 8, 16, 32, 64, 128};
     public HashMap<RotCGResourceLocation, byte[]> resources = new HashMap<>();
     private static final HashSet<Integer> powSet = new HashSet<>();
@@ -82,17 +81,9 @@ public class RotCGPack implements PackResources, Serializable {
         BufferedImage blackImg = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
-                blackImg.setRGB(x, y, 0xff_00_00_00);
+                blackImg.setRGB(x, y, 0x00_00_00_00);
             }
         }
-
-        BufferedImage whiteImg = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                whiteImg.setRGB(x, y, 0xff_ff_ff_ff);
-            }
-        }
-        resources.put(WHITE, imageToArray(whiteImg));
 
         Rotcg.LOGGER.info(" - Sounds");
         try {
@@ -139,8 +130,9 @@ public class RotCGPack implements PackResources, Serializable {
                 Ground ground = blockRegistry.get().ground;
                 for(int i = 0; i <= 16; i++) {
                     JsonObject obj = new JsonObject();
+                    obj.addProperty("loader", "rotcg:grounds");
                     obj.addProperty("parent", "block/cube_all");
-
+                    obj.addProperty("type", ground.type);
                     JsonObject textures = new JsonObject();
                     Texture texture = i < ground.textures.size() ? ground.textures.get(i) : ground.textures.get(0);
                     textures.addProperty("all", textToRl(texture).toString());
@@ -179,7 +171,7 @@ public class RotCGPack implements PackResources, Serializable {
         // Regular Sprites
         for (SpriteLocation loc : SheetReference.getSpriteLocations()) {
             BufferedImage img;
-            if(loc.spritesheet.equals("invisible") || (loc.spritesheet.equals("lofiEnvironment") && loc.index == 0xff)){
+            if(loc.spritesheet.equals("invisible")){
                 img = blackImg;
             }else{
                 img = SheetReference.getSprite(loc);

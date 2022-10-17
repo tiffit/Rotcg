@@ -30,7 +30,7 @@ import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.realmnetapi.util.math.Vec3f;
 import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.pack.RotCGPack;
-import net.tiffit.rotcg.registry.GroundBlock;
+import net.tiffit.rotcg.registry.block.GroundBlock;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.render.RenderUtils;
 

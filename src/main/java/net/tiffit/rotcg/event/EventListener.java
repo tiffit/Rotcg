@@ -47,7 +47,7 @@ import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
 import net.tiffit.rotcg.Constants;
 import net.tiffit.rotcg.Rotcg;
-import net.tiffit.rotcg.registry.GroundBlock;
+import net.tiffit.rotcg.registry.block.GroundBlock;
 import net.tiffit.rotcg.registry.entity.ProjectileEntityContainer;
 import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.registry.entity.RotcgEntityContainer;
