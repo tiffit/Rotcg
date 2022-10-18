@@ -17,7 +17,7 @@ public class ReconnectEventHandler {
         ReconnectPacketIn packet = reconnectEvent.packet();
         String address = packet.host.isEmpty() ? Rotcg.ADDRESS.address() : packet.host;
         Rotcg.ADDRESS = new ConnectionAddress(address, 2050, packet.key, packet.keyTime, packet.gameId);
-        TickExecutor.addRender(() -> {
+        TickExecutor.addClient(() -> {
             Minecraft mc = Minecraft.getInstance();
             mc.level.disconnect();
             mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));

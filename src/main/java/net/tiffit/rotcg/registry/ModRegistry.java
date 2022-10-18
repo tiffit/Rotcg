@@ -107,6 +107,7 @@ public class ModRegistry {
 
         event.register(KeybindingManager.MINIMAP_ZOOM_IN = new KeyMapping("Zoom In", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_EQUAL, category));
         event.register(KeybindingManager.MINIMAP_ZOOM_OUT = new KeyMapping("Zoom Out", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, category));
+        event.register(KeybindingManager.VIEW_MAP = new KeyMapping("View Map", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, category));
 
     }
 

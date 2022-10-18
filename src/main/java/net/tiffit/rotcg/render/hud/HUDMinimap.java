@@ -21,24 +21,24 @@ public class HUDMinimap {
     public static int VIEW_RANGE = 30;
 
     static void render(RenderGuiOverlayEvent e, PoseStack ps, GameObjectState state, int scaledWidth, int scaledHeight, Minecraft mc, Font font){
+        int mapSize = 100;
+        int drawX = scaledWidth - mapSize - 5;
+        int drawY = 5;
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        Screen.fill(ps, drawX, drawY, drawX + mapSize, drawY + mapSize, 0xcf_00_00_00);
+        renderMap(mc, ps, drawX, drawY, mapSize, VIEW_RANGE,true);
+    }
+
+    public static void renderMap(Minecraft mc, PoseStack ps, int posX, int posY, int mapSize, int viewRange, boolean scissor){
         if(mc.player == null || Rotcg.MAP == null || Rotcg.MAP.mapRL == null)return;
         RMap map = Rotcg.ACTIVE_CONNECTION.map;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, Rotcg.MAP.mapRL);
-        int mapSize = 100;
-        int viewRange = VIEW_RANGE;
 
         double texU = mc.player.getX() - viewRange;
         double texV = mc.player.getZ() - viewRange;
 
-//        if(texU < 0 || texU + viewRange >= map.getWidth() || texV < 0 || texV + viewRange >= map.getHeight()){
-//            texU = 0;
-//            texV = 0;
-//            viewRange = map.getWidth() / 2 - 1;
-//        }
-
-        MinimapBuilder minimap = new MinimapBuilder(mc.player,scaledWidth - mapSize - 5, 5, texU, texV, viewRange, mapSize, map);
+        MinimapBuilder minimap = new MinimapBuilder(mc.player, posX, posY, texU, texV, viewRange, mapSize, map, scissor);
         minimap.beginRender(ps);
         minimap.render(ps);
         for(RObject entity : map.getEntityList().getEntities()){
@@ -62,8 +62,9 @@ public class HUDMinimap {
         double texU, texV;
         RMap map;
         int viewRange;
+        boolean scissor;
 
-        MinimapBuilder(LocalPlayer player, int drawX, int drawY, double texU, double texV, int viewRange, int mapSize, RMap map){
+        MinimapBuilder(LocalPlayer player, int drawX, int drawY, double texU, double texV, int viewRange, int mapSize, RMap map, boolean scissor){
             this.player = player;
             this.drawX = drawX;
             this.drawY = drawY;
@@ -72,20 +73,23 @@ public class HUDMinimap {
             this.viewRange = viewRange;
             this.mapSize = mapSize;
             this.map = map;
+            this.scissor = scissor;
         }
 
         void beginRender(PoseStack ps){
             ps.pushPose();
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            Window window = Minecraft.getInstance().getWindow();
+            if(scissor){
+                GL11.glEnable(GL11.GL_SCISSOR_TEST);
+                Window window = Minecraft.getInstance().getWindow();
 
-            double xFactor = window.getWidth() / (double)window.getGuiScaledWidth();
-            double yFactor = window.getHeight() / (double)window.getGuiScaledHeight();
+                double xFactor = window.getWidth() / (double)window.getGuiScaledWidth();
+                double yFactor = window.getHeight() / (double)window.getGuiScaledHeight();
 
-            int leftBound = (int) (drawX * xFactor);
-            int topBound = window.getHeight() - (int) ((drawY+mapSize) * yFactor);
+                int leftBound = (int) (drawX * xFactor);
+                int topBound = window.getHeight() - (int) ((drawY+mapSize) * yFactor);
 
-            GL11.glScissor(leftBound, topBound, (int)(mapSize * xFactor), (int)(mapSize * xFactor));
+                GL11.glScissor(leftBound, topBound, (int)(mapSize * xFactor), (int)(mapSize * xFactor));
+            }
             ps.translate(drawX, drawY, 0);
         }
 

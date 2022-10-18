@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class Minimap {
 
-    private static final int invisibleColor = 0xff000000;
+    private static final int invisibleColor = 0x00000000;
 
     private static int mapIdCounter = 0;
     private final int id = mapIdCounter++;

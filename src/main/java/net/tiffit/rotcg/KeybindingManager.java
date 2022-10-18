@@ -20,6 +20,7 @@ import net.tiffit.realmnetapi.net.packet.out.ChangeAllyShootPacketOut;
 import net.tiffit.realmnetapi.net.packet.out.UsePortalPacketOut;
 import net.tiffit.realmnetapi.util.math.Vec2f;
 import net.tiffit.rotcg.render.hud.HUDMinimap;
+import net.tiffit.rotcg.screen.MapScreen;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.util.TickExecutor;
 
@@ -35,11 +36,15 @@ public class KeybindingManager {
 
     public static KeyMapping MINIMAP_ZOOM_OUT;
     public static KeyMapping MINIMAP_ZOOM_IN;
+    public static KeyMapping VIEW_MAP;
 
     @SubscribeEvent
     public static void onKeyboardPress(InputEvent.Key e){
         RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
         Minecraft mc = Minecraft.getInstance();
+        if(VIEW_MAP.isDown()){
+            mc.setScreen(new MapScreen());
+        }
         if(INTERACT.isDown()){
             if(net != null && net.connected){
                 RObject nearestPortal = net.map.getClosestGameObject(PORTAL_RANGE, Constants.CLASSES_PORTAL);
