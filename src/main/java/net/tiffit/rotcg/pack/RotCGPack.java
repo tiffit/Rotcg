@@ -19,7 +19,6 @@ import net.tiffit.realmnetapi.assets.xml.Texture;
 import net.tiffit.realmnetapi.util.math.Vec2i;
 import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.registry.ModRegistry;
-import net.tiffit.rotcg.registry.block.GroundBlock;
 import net.tiffit.rotcg.util.RotCGResourceLocation;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -95,21 +94,13 @@ public class RotCGPack implements PackResources, Serializable {
         Rotcg.LOGGER.info(" - Blockstates");
         {//Blockstate
             ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
-                GroundBlock block = blockRegistry.get();
                 JsonObject obj = new JsonObject();
-
                 JsonObject variants = new JsonObject();
                 obj.add("variants", variants);
 
-                for(int i = 0; i <= 16; i++) {
-                    JsonObject model = new JsonObject();
-                    if(i < block.ground.textures.size()) {
-                        model.addProperty("model", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_" + i);
-                    }else{
-                        model.addProperty("model", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath() + "_0");
-                    }
-                    variants.add("textureused=" + i, model);
-                }
+                JsonObject model = new JsonObject();
+                model.addProperty("model", Rotcg.MODID + ":block/" + blockRegistry.getId().getPath());
+                variants.add("", model);
                 resources.put(new RotCGResourceLocation("blockstates/" + blockRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
             ModRegistry.R_WALLS.values().forEach(blockRegistry -> {
@@ -128,17 +119,23 @@ public class RotCGPack implements PackResources, Serializable {
         {//Block
             ModRegistry.R_GROUNDS.values().forEach(blockRegistry -> {
                 Ground ground = blockRegistry.get().ground;
-                for(int i = 0; i <= 16; i++) {
-                    JsonObject obj = new JsonObject();
-                    obj.addProperty("loader", "rotcg:grounds");
-                    obj.addProperty("parent", "block/cube_all");
-                    obj.addProperty("type", ground.type);
-                    JsonObject textures = new JsonObject();
-                    Texture texture = i < ground.textures.size() ? ground.textures.get(i) : ground.textures.get(0);
-                    textures.addProperty("all", textToRl(texture).toString());
-                    obj.add("textures", textures);
-                    resources.put(new RotCGResourceLocation("models/block/" + blockRegistry.getId().getPath() + "_" + i + ".json"), obj.toString().getBytes());
+                JsonObject obj = new JsonObject();
+                obj.addProperty("loader", "rotcg:grounds");
+                obj.addProperty("parent", "block/cube_all");
+                obj.addProperty("type", ground.type);
+                JsonObject textures = new JsonObject();
+                for (int i = 0; i < ground.textures.size(); i++) {
+                    Texture texture = ground.textures.get(i);
+                    textures.addProperty(i + "", textToRl(texture).toString());
                 }
+                if(ground.sameTypeEdgeMode){
+                    Texture baseTexture = ground.textures.get(0);
+                    textures.addProperty("edge", textToRl(ground.edge == null ? baseTexture : ground.edge).toString());
+                    textures.addProperty("innerCorner", textToRl(ground.innerCorner == null ? baseTexture : ground.innerCorner).toString());
+                    textures.addProperty("corner", textToRl(ground.corner == null ? baseTexture : ground.corner).toString());
+                }
+                obj.add("textures", textures);
+                resources.put(new RotCGResourceLocation("models/block/" + blockRegistry.getId().getPath() + ".json"), obj.toString().getBytes());
             });
             ModRegistry.R_WALLS.values().forEach(blockRegistry -> {
                 JsonObject obj = new JsonObject();
