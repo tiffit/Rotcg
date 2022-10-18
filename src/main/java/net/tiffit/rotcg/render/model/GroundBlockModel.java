@@ -22,8 +22,8 @@ import java.util.function.Function;
 
 public class GroundBlockModel implements IUnbakedGeometry<GroundBlockModel> {
 
-    private static final ResourceLocation TRANSLUCENT = new ResourceLocation("translucent");
-    private static final ResourceLocation SOLID = new ResourceLocation("solid");
+    public static final ResourceLocation TRANSLUCENT = new ResourceLocation("translucent");
+    public static final ResourceLocation SOLID = new ResourceLocation("solid");
     private static final Matrix4f IDENTITY = new Matrix4f();
 
     static {

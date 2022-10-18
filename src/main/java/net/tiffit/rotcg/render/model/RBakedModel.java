@@ -1,12 +1,16 @@
 package net.tiffit.rotcg.render.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -14,17 +18,33 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.NamedRenderTypeManager;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
+import net.tiffit.realmnetapi.assets.xml.Ground;
+import net.tiffit.realmnetapi.util.math.Rectf;
+import net.tiffit.realmnetapi.util.math.Vec2f;
+import net.tiffit.rotcg.registry.block.GroundBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
+import static net.tiffit.rotcg.render.model.GroundBlockModel.TRANSLUCENT;
+
 public class RBakedModel implements BakedModel {
 
+    private static Rectf[] COMPOSITE_RECTS = new Rectf[]{
+            new Rectf(0, 0, .5f, .5f),
+            new Rectf(.5f, 0, .5f, .5f),
+            new Rectf(0, .5f, .5f, .5f),
+            new Rectf(.5f, .5f, .5f, .5f),
+    };
+
     private static ModelProperty<BlockPos> BLOCK_POS = new ModelProperty<>();
+    private static ModelProperty<BlockState[]> COMPOSITE = new ModelProperty<>();
     private static ModelProperty<GroundBlockModel.SameTypeEdgeModeMaterials> EDGE_TYPE = new ModelProperty<>();
     private static ModelProperty<Integer> EDGE_ROTATION = new ModelProperty<>();
 
@@ -49,6 +69,22 @@ public class RBakedModel implements BakedModel {
     }
 
     private BakedModel getCorrectModel(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData data, @Nullable RenderType renderType){
+        if(data.has(COMPOSITE)){
+            BlockState[] surrounding = data.get(COMPOSITE);
+            ModelManager manager = Minecraft.getInstance().getModelManager();
+            SimpleBakedModel.Builder builder = new SimpleBakedModel.Builder(false, false, false, ItemTransforms.NO_TRANSFORMS, ItemOverrides.EMPTY);
+            builder.particle(internal.getParticleIcon(data));
+            for (int i = 0; i < surrounding.length; i++) {
+                if(surrounding[i] == null)continue;
+                BakedModel model = manager.getModel(BlockModelShaper.stateToModelLocation(surrounding[i]));
+                if(model instanceof RBakedModel rmodel){
+                    TextureAtlasSprite sprite = rmodel.internal.getParticleIcon(data);
+                    Rectf rect = COMPOSITE_RECTS[i];
+                    createCompositeQuads(builder, sprite, rect.getStart(), rect.getEnd());
+                }
+            }
+            return builder.build(NamedRenderTypeManager.get(TRANSLUCENT));
+        }
         if(connectedModels != null){
             GroundBlockModel.SameTypeEdgeModeMaterials edgeType = data.get(EDGE_TYPE);
             if(edgeType != null){
@@ -66,6 +102,20 @@ public class RBakedModel implements BakedModel {
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
         ModelData.Builder builder = modelData.derive();
         builder.with(BLOCK_POS, pos);
+        if(state.getBlock() instanceof GroundBlock groundBlock){
+            Ground ground = groundBlock.ground;
+            if(ground.type == 253){ //Is Composite
+                BlockState[] arr = new BlockState[4];
+                Direction[] directions = new Direction[]{Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+                for (int i = 0; i < 4; i++) {
+                    arr[i] = getCompositeState(level, pos.relative(directions[i]));
+                    if(arr[i] == null){
+                        arr[i] = getCompositeState(level, pos.relative(directions[i + 1]));
+                    }
+                }
+                builder.with(COMPOSITE, arr);
+            }
+        }
         connectedModels: {
             if(connectedModels != null){
                 builder.with(EDGE_TYPE, null);
@@ -142,6 +192,34 @@ public class RBakedModel implements BakedModel {
 
     private boolean differentBlock(BlockAndTintGetter level, BlockPos pos, BlockState thisState){
         return !level.getBlockState(pos).getBlock().equals(thisState.getBlock());
+    }
+
+    private BlockState getCompositeState(BlockAndTintGetter level, BlockPos pos){
+        BlockState otherState = level.getBlockState(pos);
+        if(otherState.getBlock() instanceof GroundBlock otherBlock){
+            if(otherBlock.ground.type != 253){
+                return otherState;
+            }
+        }
+        return null;
+    }
+
+    private static void createCompositeQuads(SimpleBakedModel.Builder builder, TextureAtlasSprite sprite, Vec2f start, Vec2f end){
+        QuadBakingVertexConsumer quadBuilder = new QuadBakingVertexConsumer(bakedQuad -> builder.addCulledFace(bakedQuad.getDirection(), bakedQuad));
+        quadBuilder.setSprite(sprite);
+        quadBuilder.setDirection(Direction.UP);
+        quadBuilder.setShade(true);
+        quadBuilder.setTintIndex(-1);
+
+        float u0 = sprite.getU(start.x() * 16);
+        float u1 = sprite.getU(end.x() * 16);
+        float v0 = sprite.getV(start.y() * 16);
+        float v1 = sprite.getV(end.y() * 16);
+
+        quadBuilder.vertex(start.x(), 1, start.y()).uv(u0, v0).color(1f, 1f, 1f, 1f).normal(0, 1, 0).endVertex();
+        quadBuilder.vertex(start.x(), 1, end.y()).uv(u0, v1).color(1f, 1f, 1f, 1f).normal(0, 1, 0).endVertex();
+        quadBuilder.vertex(end.x(), 1, end.y()).uv(u1, v1).color(1f, 1f, 1f, 1f).normal(0, 1, 0).endVertex();
+        quadBuilder.vertex(end.x(), 1, start.y()).uv(u1, v0).color(1f, 1f, 1f, 1f).normal(0, 1, 0).endVertex();
     }
 
     @Override
