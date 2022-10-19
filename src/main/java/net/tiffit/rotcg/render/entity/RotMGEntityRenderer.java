@@ -161,6 +161,9 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
                 stack.scale(-1, 1, 1);
             }
         }
+        if(go.drawOnGround){
+            type = RenderType.entityCutout(RotCGPack.textToRlFull(texture));
+        }
         if(type == null){
             type = RenderType.entityTranslucent(RotCGPack.textToRlFull(texture));
         }
@@ -201,8 +204,6 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
         }
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         if(!go.drawOnGround) {
-            //Entity player = Minecraft.getInstance().player;
-            //stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(player.getX() - entity.getX(), player.getZ() - entity.getZ())));
             Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             stack.mulPose(Vector3f.YP.rotation((float)Math.atan2(cameraPos.x() - entity.getX(), cameraPos.z() - entity.getZ())));
         }else{
@@ -218,7 +219,7 @@ public abstract class RotMGEntityRenderer<T extends RotcgEntity> extends EntityR
             if(img != null)scaleVal *= Math.max(img.getWidth(), img.getHeight()) / 8.0f;
             scaleVal = getScaleValue(scaleVal);
             if(go.drawOnGround){
-                stack.translate(0, 0.0001, 0.5f * img.getWidth() / 8.0f);
+                stack.translate(0, 0.001, 0.5f * img.getWidth() / 8.0f);
                 stack.mulPose(Vector3f.XP.rotationDegrees(-90));
             }
             stack.scale(scaleVal, scaleVal, scaleVal);
