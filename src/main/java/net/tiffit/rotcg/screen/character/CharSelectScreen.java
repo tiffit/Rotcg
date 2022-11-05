@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.tiffit.realmnetapi.auth.RealmAuth;
+import net.tiffit.realmnetapi.auth.RotmgEnv;
 import net.tiffit.realmnetapi.auth.data.PlayerChar;
 import net.tiffit.rotcg.Rotcg;
 
@@ -13,11 +14,13 @@ import java.util.List;
 public class CharSelectScreen extends Screen {
 
     private CharSelectList list;
+    public final RotmgEnv env;
     public final List<PlayerChar> chars;
 
-    public CharSelectScreen() {
+    public CharSelectScreen(RotmgEnv env) {
         super(Component.literal("Select Character"));
-        chars = RealmAuth.charList(Rotcg.TOKEN);
+        this.env = env;
+        chars = RealmAuth.charList(env, Rotcg.TOKEN);
         chars.sort(Comparator.comparingInt(value -> -value.id()));
     }
 

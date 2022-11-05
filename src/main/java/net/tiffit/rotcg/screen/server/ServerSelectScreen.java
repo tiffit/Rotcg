@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.tiffit.realmnetapi.auth.RealmAuth;
+import net.tiffit.realmnetapi.auth.RotmgEnv;
 import net.tiffit.realmnetapi.auth.data.ServerInfo;
 import net.tiffit.rotcg.Rotcg;
 
@@ -14,9 +15,9 @@ public class ServerSelectScreen extends Screen {
     private ServerSelectList list;
     public final List<ServerInfo> servers;
 
-    public ServerSelectScreen() {
+    public ServerSelectScreen(RotmgEnv env) {
         super(Component.literal("Select Server"));
-        servers = RealmAuth.getServers(Rotcg.TOKEN);
+        servers = RealmAuth.getServers(env, Rotcg.TOKEN);
     }
 
     @Override

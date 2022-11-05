@@ -9,7 +9,6 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.tiffit.realmnetapi.RealmNetApi;
 import net.tiffit.realmnetapi.assets.OBJModel;
 import net.tiffit.realmnetapi.assets.spritesheet.SheetReference;
 import net.tiffit.realmnetapi.assets.spritesheet.Spritesheet;
@@ -19,7 +18,6 @@ import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.auth.AccessToken;
-import net.tiffit.realmnetapi.auth.RealmAuth;
 import net.tiffit.realmnetapi.auth.data.ServerInfo;
 import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.RealmNetworker;
@@ -40,7 +38,7 @@ public class Rotcg {
     public static final boolean DEV_WORLD = false;
     public static final String MODID = "rotcg";
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static Gson GSON = new GsonBuilder().setLenient().create();
+    public static Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
 
     public static RealmNetworker ACTIVE_CONNECTION;
     public static ServerPlayer SERVER_PLAYER;
@@ -53,18 +51,18 @@ public class Rotcg {
 
     public Rotcg() {
         WorldUtils.clearExistingWorlds();
-        try {
-            CONFIG = GSON.fromJson(new FileReader("./rotcg.json"), RotcgConfig.class);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        CONFIG = RotcgConfig.load();
         try {
             Spritesheet.LoadSpriteSheets(new FileInputStream("./assets/sprites/spritesheet.json"));
             SheetReference.Init("./assets/sprites/");
         }catch (Exception ex){
             ex.printStackTrace();
         }
-        File xmlCache = new File("./cache/xmlObjects");
+        File cacheFolder = new File("./cache/");
+        if(!cacheFolder.exists()){
+            cacheFolder.mkdir();
+        }
+        File xmlCache = new File(cacheFolder, "xmlObjects");
         if(!xmlCache.exists()){
             XMLLoader.loadAllXml();
             try {
@@ -107,12 +105,6 @@ public class Rotcg {
         ModRegistry.ITEMS.register(modEventBus);
         ModRegistry.ENTITIES.register(modEventBus);
         ModRegistry.BLOCK_ENTITY_TYPE.register(modEventBus);
-
-        switch (RealmNetApi.ENV){
-            case PRODUCTION -> TOKEN = RealmAuth.authenticate(CONFIG.prodUsername, CONFIG.prodPassword);
-            case TESTING -> TOKEN = RealmAuth.authenticate(CONFIG.testingUsername, CONFIG.testingPassword);
-        }
-        TOKEN = RealmAuth.authenticate(Rotcg.TOKEN);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

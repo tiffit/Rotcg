@@ -11,7 +11,7 @@ public class CharSelectList extends ObjectSelectionList<CharSelectListEntry> {
         super(pMinecraft, pWidth, pHeight, pY0, pY1, pItemHeight);
         this.parent = screen;
         for (PlayerChar pc : screen.chars) {
-            addEntry(new CharSelectListEntry(pc));
+            addEntry(new CharSelectListEntry(pc, screen.env));
         }
     }
 }
