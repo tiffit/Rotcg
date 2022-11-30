@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.event;
+package net.tiffit.rotcg.rna.event;
 
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;

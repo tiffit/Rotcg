@@ -3,6 +3,7 @@ package net.tiffit.rotcg.rna;
 import net.minecraft.world.entity.player.Player;
 import net.tiffit.realmnetapi.api.IPlayerPosTracker;
 import net.tiffit.realmnetapi.util.math.Vec2f;
+import net.tiffit.rotcg.Rotcg;
 
 public class McPlayerPosTracker implements IPlayerPosTracker {
 
@@ -19,7 +20,7 @@ public class McPlayerPosTracker implements IPlayerPosTracker {
 
     @Override
     public void setPos(Vec2f vec2f) {
-        System.out.println("Setting player position");
+        Rotcg.LOGGER.info("Setting player position: " + vec2f);
         player.teleportToWithTicket(vec2f.x(), 65.1f, vec2f.y());
     }
 }

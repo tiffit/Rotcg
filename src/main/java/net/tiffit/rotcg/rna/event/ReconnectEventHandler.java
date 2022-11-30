@@ -1,8 +1,10 @@
-package net.tiffit.rotcg.event;
+package net.tiffit.rotcg.rna.event;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.network.chat.Component;
+import net.tiffit.realmnetapi.api.event.QueueInformationEvent;
 import net.tiffit.realmnetapi.api.event.ReconnectEvent;
 import net.tiffit.realmnetapi.net.ConnectionAddress;
 import net.tiffit.realmnetapi.net.packet.in.ReconnectPacketIn;
@@ -22,6 +24,18 @@ public class ReconnectEventHandler {
             mc.level.disconnect();
             mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));
             MenuScreen.connect(mc);
+        });
+    }
+
+    public static void handleQueue(QueueInformationEvent queueInformationEvent){
+        TickExecutor.addClient(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            if(mc.player != null){
+                String queuePosition = queueInformationEvent.position() + "/" + queueInformationEvent.outOf();
+                mc.player.sendSystemMessage(Component.literal(ChatFormatting.RED + "[RotCG] " + ChatFormatting.RESET + "In Queue: " + queuePosition));
+            }else{
+                handleQueue(queueInformationEvent);
+            }
         });
     }
 

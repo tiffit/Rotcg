@@ -17,7 +17,7 @@ public class ObjectEntityTypeMapping {
         addMapping(() -> PortalEntity.TYPE.get(), Constants.CLASSES_PORTAL);
         addMapping(() -> PlayerEntity.TYPE.get(), "Player");
         addMapping(() -> GameObjectEntity.TYPE.get(), "GameObject", "ClosedVaultChest", "ClosedGiftChest",
-                "NameChanger", "CharacterChanger", "MoneyChanger", "Gravestone",
+                "NameChanger", "CharacterChanger", "SeasonalitySwitcher", "MoneyChanger", "Gravestone",
                 "GuildBoard", "GuildRegister", "GuildChronicle", "Pet", "ReskinVendor", "MysteryBoxGround", "YardUpgrader", "PetUpgrader",
                 "Container", "Summon", "Blacksmith Inv Object", "VaultContainer", "VaultGiftContainer", "PremiumVaultContainer", "Blacksmith Magic Anvil", "Blacksmith");
         addMapping(() -> CharacterEntity.TYPE.get(), "Character");

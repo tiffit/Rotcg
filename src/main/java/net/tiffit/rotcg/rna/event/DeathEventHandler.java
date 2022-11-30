@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.event;
+package net.tiffit.rotcg.rna.event;
 
 import net.minecraft.client.Minecraft;
 import net.tiffit.realmnetapi.api.event.DeathEvent;

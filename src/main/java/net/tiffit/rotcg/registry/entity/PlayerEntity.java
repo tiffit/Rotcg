@@ -43,8 +43,10 @@ public class PlayerEntity extends RotcgEntity {
         String name = state.<String>getStat(StatType.NAME).split(",")[0];
         boolean nameChosen = state.hasStat(StatType.NAME_CHOSEN) && state.<Integer>getStat(StatType.NAME_CHOSEN) > 0;
         boolean supporter = state.hasStat(StatType.SUPPORTER) && state.<Integer>getStat(StatType.SUPPORTER) > 0;
+        boolean seasonal = state.hasStat(StatType.SEASONAL_CHARACTER) && state.<Integer>getStat(StatType.SEASONAL_CHARACTER) > 0;
         if(nameChosen){
-            if(supporter)name = ChatFormatting.LIGHT_PURPLE + name;
+            if(seasonal)name = ChatFormatting.AQUA + name;
+            else if(supporter)name = ChatFormatting.LIGHT_PURPLE + name;
             else name = ChatFormatting.YELLOW + name;
         }
         cachedName = Component.literal(ChatFormatting.WHITE + name);

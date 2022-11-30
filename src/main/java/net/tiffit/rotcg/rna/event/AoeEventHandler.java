@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.event;
+package net.tiffit.rotcg.rna.event;
 
 import net.tiffit.realmnetapi.api.event.AoeEvent;
 import net.tiffit.realmnetapi.net.packet.in.AoePacketIn;

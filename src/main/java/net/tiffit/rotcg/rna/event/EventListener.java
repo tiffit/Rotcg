@@ -1,4 +1,4 @@
-package net.tiffit.rotcg.event;
+package net.tiffit.rotcg.rna.event;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -99,6 +99,7 @@ public class EventListener {
 
         EventHandler.addListener(TileAddEvent.class, tileAddEvent -> TileAddEventHandler.handle(tileAddEvent, level));
         EventHandler.addListener(ReconnectEvent.class, ReconnectEventHandler::handle);
+        EventHandler.addListener(QueueInformationEvent.class, ReconnectEventHandler::handleQueue);
         EventHandler.addListener(PlayerDataEvent.class, playerDataEvent -> updateInventory = true);
         EventHandler.addListener(ChatEvent.class, ChatEventHandler::handle);
         EventHandler.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
@@ -130,7 +131,7 @@ public class EventListener {
                 return new RotcgEntityContainer(rObject);
             }
             Rotcg.LOGGER.warn("Unknown object-class " + go.goClass + "; id: " + go.id);
-            return new IObjectListener.EmptyObjectListener(rObject);
+            return new IObjectListener.EmptyObjectListener<>(rObject);
         };
 
         Hooks.ProjectileListener = ProjectileEntityContainer::new;
