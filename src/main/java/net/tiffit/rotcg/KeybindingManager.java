@@ -98,6 +98,7 @@ public class KeybindingManager {
                 net.disconnect();
             }
             Rotcg.ADDRESS = ConnectionAddress.getNexusAddress(Rotcg.SERVER.dns());
+            mc.options.renderDebug = false;
             TickExecutor.addRender(() -> {
                 mc.level.disconnect();
                 mc.clearLevel(new GenericDirtMessageScreen(Component.translatable("menu.savingLevel")));

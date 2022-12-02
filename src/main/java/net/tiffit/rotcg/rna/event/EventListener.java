@@ -42,6 +42,7 @@ import net.tiffit.realmnetapi.assets.ConditionEffect;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.Ground;
 import net.tiffit.realmnetapi.map.RMap;
+import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
@@ -146,6 +147,14 @@ public class EventListener {
             mc.getWindow().setTitle("Rotcg - " + Rotcg.SERVER.name());
             mc.getSoundManager().play(new SimpleSoundInstance(new RotCGResourceLocation("other_warp_done"), SoundSource.AMBIENT, 0.3f, 1, SoundEventHandler.src,
                     false, 0, SoundInstance.Attenuation.LINEAR, Rotcg.SERVER_PLAYER.getX(), Rotcg.SERVER_PLAYER.getY(), Rotcg.SERVER_PLAYER.getZ(), false));
+
+
+            long maxMem = Runtime.getRuntime().maxMemory();
+            long totalMem = Runtime.getRuntime().totalMemory();
+            long freeMem = Runtime.getRuntime().freeMemory();
+            long currentUse = totalMem - freeMem;
+            Rotcg.SERVER_PLAYER.sendSystemMessage(Component.literal(ChatFormatting.RED + "[RotCG] " + ChatFormatting.RESET +
+                    "System: " + bytesToMegabytes(maxMem) + "Mb, Allocating: " + bytesToMegabytes(totalMem) + "Mb, Using: " + bytesToMegabytes(currentUse) + "Mb"));
         });
     }
 
@@ -251,10 +260,12 @@ public class EventListener {
                     list.add(ChatFormatting.UNDERLINE + "Targeted GameObject: null");
                 }else{
                     GameObject go = obj.getGameObject();
+                    GameObjectState state = obj.getState();
                     list.add(ChatFormatting.UNDERLINE + "Targeted GameObject");
                     list.add("Type: " + go.type + " (0x" + Integer.toHexString(go.type) + ")");
                     list.add("Id: " + go.id + " (" + go.displayid + ")");
                     list.add("Class: " + go.goClass);
+                    list.add("Obj Id: " + state.objectId);
                 }
             }
         }
@@ -295,6 +306,10 @@ public class EventListener {
                 Rotcg.ACTIVE_CONNECTION.controller.sendChatMessage(text);
             }
         }
+    }
+
+    private static long bytesToMegabytes(long pBytes) {
+        return pBytes / 1024L / 1024L;
     }
 
 }

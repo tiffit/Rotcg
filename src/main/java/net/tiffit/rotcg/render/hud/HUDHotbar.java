@@ -77,12 +77,15 @@ public class HUDHotbar {
         font.drawShadow(ps, "WIS " + state.getWisdom(), statsRight, scaledHeight - statsHeight - 20, 0xffffffff);
 
         List<ConditionEffect> effectList = state.getAllEffects();
-        for (int i = 0; i < effectList.size(); i++) {
-            ConditionEffect effect = effectList.get(i);
-            if(effect == ConditionEffect.PAUSED || effect == ConditionEffect.GROUND_DAMAGE || effect == ConditionEffect.NOTHING)continue;
-            String name = effect.getDisplayName();
-            int color = effect.buff ? 0xff_00_ff_00 : 0xff_ff_00_00;
-            font.drawShadow(ps, name, scaledWidth - font.width(name) - 5, scaledHeight - 25 - i*15, color);
+        if(!mc.options.renderDebug) {
+            for (int i = 0; i < effectList.size(); i++) {
+                ConditionEffect effect = effectList.get(i);
+                if (effect == ConditionEffect.PAUSED || effect == ConditionEffect.GROUND_DAMAGE || effect == ConditionEffect.NOTHING)
+                    continue;
+                String name = effect.getDisplayName();
+                int color = effect.buff ? 0xff_00_ff_00 : 0xff_ff_00_00;
+                font.drawShadow(ps, name, scaledWidth - font.width(name) - 5, scaledHeight - 25 - i * 15, color);
+            }
         }
     }
 

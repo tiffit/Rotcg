@@ -25,6 +25,7 @@ public class HUDNearbyPlayers {
     private static long lastUpdate = 0;
 
     static void render(RenderGuiOverlayEvent e, GameObjectState selfState, int scaledWidth, int scaledHeight, Minecraft mc, Font font){
+        if(mc.options.renderDebug)return;
         List<RObject> players = Rotcg.ACTIVE_CONNECTION.map.getEntityList().getAll(object -> object.getGameObject().player);
         PoseStack stack = e.getPoseStack();
         int index = 0;

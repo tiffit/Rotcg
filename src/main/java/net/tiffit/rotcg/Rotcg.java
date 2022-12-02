@@ -105,6 +105,13 @@ public class Rotcg {
         ModRegistry.ITEMS.register(modEventBus);
         ModRegistry.ENTITIES.register(modEventBus);
         ModRegistry.BLOCK_ENTITY_TYPE.register(modEventBus);
+
+//        GameObject go = XMLLoader.ID_TO_OBJECT.get("2KenseiST0");
+//        for (Projectile projectile : go.projectiles) {
+//            if(projectile.id == 0){
+//                projectile.lifetimeMS = 2000;
+//            }
+//        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

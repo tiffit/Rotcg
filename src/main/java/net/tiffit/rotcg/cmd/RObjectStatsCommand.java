@@ -21,7 +21,7 @@ public class RObjectStatsCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("robjectstats")
                         .executes(context -> execute(context.getSource(), null))
-                .then(Commands.argument("object_id", StringArgumentType.word())
+                .then(Commands.argument("object_id", StringArgumentType.greedyString())
                         .executes(context -> execute(context.getSource(), StringArgumentType.getString(context, "object_id")))));
     }
 
@@ -56,7 +56,8 @@ public class RObjectStatsCommand {
         for(StatType type : StatType.values()){
             if(resultState.hasStat(type)){
                 String val = type.stringType ? resultState.getStat(type) : (resultState.<Integer>getStat(type) + "");
-                src.sendSystemMessage(Component.literal(ChatFormatting.YELLOW.toString() + type + ": " + ChatFormatting.GRAY + val));
+                int extraStat = resultState.getExtraStat(type);
+                src.sendSystemMessage(Component.literal(ChatFormatting.YELLOW.toString() + type + ": " + ChatFormatting.GRAY + val + " (" + extraStat + ")"));
             }
         }
         src.sendSuccess(Component.literal(ChatFormatting.GOLD + "-------"), false);
