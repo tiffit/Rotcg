@@ -54,7 +54,7 @@ public class ReconnectEventHandler {
         if(NextReconnectTime == -1)return;
         TickExecutor.addClient(() -> {
             if(System.currentTimeMillis() > NextReconnectTime){
-                RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS);
+                RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, Rotcg.ACTIVE_CONNECTION.hooks);
                 networker.connect(Rotcg.TOKEN);
                 Rotcg.ACTIVE_CONNECTION = networker;
                 NextReconnectTime = -1;

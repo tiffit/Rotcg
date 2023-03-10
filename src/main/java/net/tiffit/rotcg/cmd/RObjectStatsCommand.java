@@ -56,8 +56,7 @@ public class RObjectStatsCommand {
         for(StatType type : StatType.values()){
             if(resultState.hasStat(type)){
                 String val = type.stringType ? resultState.getStat(type) : (resultState.<Integer>getStat(type) + "");
-                int extraStat = resultState.getExtraStat(type);
-                src.sendSystemMessage(Component.literal(ChatFormatting.YELLOW.toString() + type + ": " + ChatFormatting.GRAY + val + " (" + extraStat + ")"));
+                src.sendSystemMessage(Component.literal(ChatFormatting.YELLOW.toString() + type + ": " + ChatFormatting.GRAY + val));
             }
         }
         src.sendSuccess(Component.literal(ChatFormatting.GOLD + "-------"), false);

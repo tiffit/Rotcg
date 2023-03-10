@@ -54,6 +54,7 @@ import net.tiffit.rotcg.registry.entity.RotcgEntity;
 import net.tiffit.rotcg.registry.entity.RotcgEntityContainer;
 import net.tiffit.rotcg.rna.McPlayerPosTracker;
 import net.tiffit.rotcg.screen.MenuScreen;
+import net.tiffit.rotcg.screen.character.CharSelectListEntry;
 import net.tiffit.rotcg.screen.slot.RInventoryScreen;
 import net.tiffit.rotcg.util.MoveSpeedUtil;
 import net.tiffit.rotcg.util.ObjectEntityTypeMapping;
@@ -96,7 +97,8 @@ public class EventListener {
         gr.getRule(GameRules.RULE_MOBGRIEFING).set(false, level.getServer());
         gr.getRule(GameRules.RULE_DOFIRETICK).set(false, level.getServer());
 
-        Hooks.PlayerPosTracker = () -> new McPlayerPosTracker(e.getEntity());
+        Hooks hooks = new Hooks();
+        hooks.PlayerPosTracker = () -> new McPlayerPosTracker(e.getEntity());
 
         EventHandler.addListener(TileAddEvent.class, tileAddEvent -> TileAddEventHandler.handle(tileAddEvent, level));
         EventHandler.addListener(ReconnectEvent.class, ReconnectEventHandler::handle);
@@ -110,7 +112,7 @@ public class EventListener {
         EventHandler.addListener(DamageEvent.class, SoundEventHandler::handleDamage);
         EventHandler.addListener(DeathEvent.class, DeathEventHandler::handle);
 
-        Hooks.ShootDecider = new IShootDecider() {
+        hooks.ShootDecider = new IShootDecider() {
             @Override
             public boolean shouldShoot() {
                 return shouldShoot && Minecraft.getInstance().screen == null;
@@ -126,7 +128,7 @@ public class EventListener {
             }
         };
 
-        Hooks.ObjectListener = rObject -> {
+        hooks.ObjectListener = rObject -> {
             GameObject go = rObject.getGameObject();
             if(ObjectEntityTypeMapping.MAP.containsKey(go.goClass)){
                 return new RotcgEntityContainer(rObject);
@@ -135,10 +137,12 @@ public class EventListener {
             return new IObjectListener.EmptyObjectListener<>(rObject);
         };
 
-        Hooks.ProjectileListener = ProjectileEntityContainer::new;
+        hooks.ProjectileListener = ProjectileEntityContainer::new;
+
+        hooks.CharacterId = CharSelectListEntry.SelectedCharacterId;
 
         Rotcg.LOGGER.info("Connecting to " + Rotcg.ADDRESS);
-        RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS);
+        RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, hooks);
         networker.connect(Rotcg.TOKEN);
         Rotcg.ACTIVE_CONNECTION = networker;
 

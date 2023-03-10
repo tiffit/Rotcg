@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.tiffit.realmnetapi.api.Hooks;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.assets.xml.XMLLoader;
 import net.tiffit.realmnetapi.auth.RotmgEnv;
@@ -26,6 +25,8 @@ public class CharSelectListEntry  extends ObjectSelectionList.Entry<CharSelectLi
     private final RotCGResourceLocation classIcon;
     private final RotCGResourceLocation classIconHover;
     private final RotCGResourceLocation[] equipIcons;
+
+    public static int SelectedCharacterId;
 
     public CharSelectListEntry(PlayerChar pc, RotmgEnv env) {
         this.pc = pc;
@@ -77,7 +78,7 @@ public class CharSelectListEntry  extends ObjectSelectionList.Entry<CharSelectLi
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        Hooks.CharacterId = pc.id();
+        SelectedCharacterId = pc.id();
         Minecraft.getInstance().setScreen(new ServerSelectScreen(env));
         return true;
     }

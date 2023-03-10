@@ -193,14 +193,7 @@ public class RotCGPack implements PackResources, Serializable {
                     BufferedImage img = SheetReference.getSprite(def.spriteData);
                     if(img != null){
                         img = resolutionFix(img);
-                        StringBuilder path = new StringBuilder("textures/a_");
-                        path.append(loc.spritesheet.toLowerCase()).append("_");
-                        path.append(loc.index);
-                        if(action != 0 || direction != 0){
-                            path.append("_").append(action).append("_").append(direction);
-                        }
-                        path.append(".png");
-                        resources.put(new RotCGResourceLocation(path.toString()), imageToArray(img));
+                        resources.put(animRl(loc, action, direction), imageToArray(img));
                     }
                 }
             }
