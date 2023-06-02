@@ -46,7 +46,7 @@ public abstract class RotcgEntity extends LivingEntity{
             int id = getObjectId();
             reference = net.map.getEntityList().get(id);
             if(reference != null){
-                animationManager = new RAnimationManager(reference, this);
+                animationManager = new RAnimationManager(reference);
             }
         }
         return reference;

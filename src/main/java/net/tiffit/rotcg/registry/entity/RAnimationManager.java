@@ -13,13 +13,12 @@ public class RAnimationManager {
     private GameObject textureObj;
     private Style currentStyle;
     private int currentStyleId = Style.EMPTY_PRESENTATION;
-    private final RotcgEntity entity;
     private Animation current;
     private Animation.AnimationFrame frame;
     private int currentFrame = 0;
     private long currentFrameTime = 0;
 
-    public RAnimationManager(RObject obj, RotcgEntity entity) {
+    public RAnimationManager(RObject obj) {
         this.obj = obj;
         this.textureObj = obj.getGameObject();
         if(!textureObj.defaultSkin.isEmpty()){
@@ -27,7 +26,6 @@ public class RAnimationManager {
                 textureObj = XMLLoader.ID_TO_OBJECT.get(textureObj.defaultSkin);
             }
         }
-        this.entity = entity;
         Map<String, Animation> animations = textureObj.animations;
         if(animations.containsKey("")){
             setAnimation(animations.get(""));
@@ -100,7 +98,7 @@ public class RAnimationManager {
             }
         }
     }
-    public void setAnimation(Animation animation){
+    private void setAnimation(Animation animation){
         current = animation;
         if(current != null){
             setFrame(0);
@@ -119,7 +117,7 @@ public class RAnimationManager {
         currentFrameTime = System.currentTimeMillis() + (int)(frame.time * 1000);
     }
 
-    public boolean inAnimation(){
+    private boolean inAnimation(){
         return current != null;
     }
 

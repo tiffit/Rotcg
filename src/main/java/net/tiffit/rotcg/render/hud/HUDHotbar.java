@@ -80,7 +80,7 @@ public class HUDHotbar {
         if(!mc.options.renderDebug) {
             for (int i = 0; i < effectList.size(); i++) {
                 ConditionEffect effect = effectList.get(i);
-                if (effect == ConditionEffect.PAUSED || effect == ConditionEffect.GROUND_DAMAGE || effect == ConditionEffect.NOTHING)
+                if (effect == ConditionEffect.GROUND_DAMAGE || effect == ConditionEffect.NOTHING)
                     continue;
                 String name = effect.getDisplayName();
                 int color = effect.buff ? 0xff_00_ff_00 : 0xff_ff_00_00;

@@ -46,6 +46,7 @@ import net.tiffit.realmnetapi.map.object.GameObjectState;
 import net.tiffit.realmnetapi.map.object.RObject;
 import net.tiffit.realmnetapi.map.object.StatType;
 import net.tiffit.realmnetapi.net.RealmNetworker;
+import net.tiffit.realmnetapi.net.packet.in.MapInfoPacketIn;
 import net.tiffit.rotcg.Constants;
 import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.registry.block.GroundBlock;
@@ -62,6 +63,7 @@ import net.tiffit.rotcg.util.RotCGResourceLocation;
 import net.tiffit.rotcg.util.TickExecutor;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.File;
 import java.util.List;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -84,7 +86,7 @@ public class EventListener {
     @SubscribeEvent
     public static void onLogIn(PlayerEvent.PlayerLoggedInEvent e) {
         if(Rotcg.DEV_WORLD)return;
-        EventHandler.clearListeners();
+        EventHandler eh = new EventHandler();
         Rotcg.SERVER_PLAYER = (ServerPlayer) e.getEntity();
         Rotcg.SERVER_PLAYER.setGameMode(GameType.ADVENTURE);
         ServerLevel level = Rotcg.SERVER_PLAYER.getLevel();
@@ -100,17 +102,17 @@ public class EventListener {
         Hooks hooks = new Hooks();
         hooks.PlayerPosTracker = () -> new McPlayerPosTracker(e.getEntity());
 
-        EventHandler.addListener(TileAddEvent.class, tileAddEvent -> TileAddEventHandler.handle(tileAddEvent, level));
-        EventHandler.addListener(ReconnectEvent.class, ReconnectEventHandler::handle);
-        EventHandler.addListener(QueueInformationEvent.class, ReconnectEventHandler::handleQueue);
-        EventHandler.addListener(PlayerDataEvent.class, playerDataEvent -> updateInventory = true);
-        EventHandler.addListener(ChatEvent.class, ChatEventHandler::handle);
-        EventHandler.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
-        EventHandler.addListener(AoeEvent.class, AoeEventHandler::handle);
-        EventHandler.addListener(EnemyHitEvent.class, SoundEventHandler::handleEnemyHit);
-        EventHandler.addListener(PlayerShootEvent.class, SoundEventHandler::handlePlayerShoot);
-        EventHandler.addListener(DamageEvent.class, SoundEventHandler::handleDamage);
-        EventHandler.addListener(DeathEvent.class, DeathEventHandler::handle);
+        eh.addListener(TileAddEvent.class, tileAddEvent -> TileAddEventHandler.handle(tileAddEvent, level));
+        eh.addListener(ReconnectEvent.class, ReconnectEventHandler::handle);
+        eh.addListener(QueueInformationEvent.class, ReconnectEventHandler::handleQueue);
+        eh.addListener(PlayerDataEvent.class, playerDataEvent -> updateInventory = true);
+        eh.addListener(ChatEvent.class, ChatEventHandler::handle);
+        eh.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
+        eh.addListener(AoeEvent.class, AoeEventHandler::handle);
+        eh.addListener(EnemyHitEvent.class, SoundEventHandler::handleEnemyHit);
+        eh.addListener(PlayerShootEvent.class, SoundEventHandler::handlePlayerShoot);
+        eh.addListener(DamageEvent.class, SoundEventHandler::handleDamage);
+        eh.addListener(DeathEvent.class, DeathEventHandler::handle);
 
         hooks.ShootDecider = new IShootDecider() {
             @Override
@@ -119,12 +121,12 @@ public class EventListener {
             }
 
             @Override
-            public float getAngleRads(GameObject go, float arcGap) {
+            public float getAngleRads(GameObject go) {
                 float rotYaw = Minecraft.getInstance().player.getYHeadRot();
                 if(rotYaw < 0)rotYaw += 360;
                 if(rotYaw > 360)rotYaw -= 360;
                 rotYaw += 90;
-                return (float) Math.toRadians(rotYaw) - (go.numProjectiles * arcGap)/2;
+                return (float) Math.toRadians(rotYaw);
             }
         };
 
@@ -139,10 +141,10 @@ public class EventListener {
 
         hooks.ProjectileListener = ProjectileEntityContainer::new;
 
-        hooks.CharacterId = CharSelectListEntry.SelectedCharacterId;
+        hooks.CharacterFactory = new MapInfoPacketIn.LoadPacketFactory(CharSelectListEntry.SelectedCharacterId);
 
         Rotcg.LOGGER.info("Connecting to " + Rotcg.ADDRESS);
-        RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, hooks);
+        RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, hooks, eh, new File("./debug/"));
         networker.connect(Rotcg.TOKEN);
         Rotcg.ACTIVE_CONNECTION = networker;
 
@@ -168,7 +170,7 @@ public class EventListener {
         Rotcg.ACTIVE_CONNECTION.disconnect();
         Rotcg.MAP = null;
         TickExecutor.clear();
-        EventHandler.clearListeners();
+        Rotcg.ACTIVE_CONNECTION.eventHandler.clearListeners();
     }
 
     @SubscribeEvent

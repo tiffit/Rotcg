@@ -16,6 +16,8 @@ import net.tiffit.rotcg.Rotcg;
 import net.tiffit.rotcg.screen.MenuScreen;
 import net.tiffit.rotcg.util.TickExecutor;
 
+import java.io.File;
+
 public class ReconnectEventHandler {
 
     private static long NextReconnectTime = -1;
@@ -54,7 +56,7 @@ public class ReconnectEventHandler {
         if(NextReconnectTime == -1)return;
         TickExecutor.addClient(() -> {
             if(System.currentTimeMillis() > NextReconnectTime){
-                RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, Rotcg.ACTIVE_CONNECTION.hooks);
+                RealmNetworker networker = new RealmNetworker(Rotcg.ADDRESS, Rotcg.ACTIVE_CONNECTION.hooks, Rotcg.ACTIVE_CONNECTION.eventHandler, new File("./debug/"));
                 networker.connect(Rotcg.TOKEN);
                 Rotcg.ACTIVE_CONNECTION = networker;
                 NextReconnectTime = -1;
