@@ -2,6 +2,7 @@ package net.tiffit.rotcg.render.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -68,13 +69,13 @@ public class HUDHotbar {
         int statsLeft = scaledWidth/2 - (int)(hotbarSlotSize*12*0.5 - 1) - 17;
         int statsRight = scaledWidth/2 + (int)(hotbarSlotSize*12*0.5 - 1) + 17;
         int statsHeight = 13;
-        RenderUtils.drawStringRight(font, ps,"VIT " + state.getVitality(), statsLeft, scaledHeight - statsHeight, 0xffffffff);
-        RenderUtils.drawStringRight(font, ps, "SPD " + state.getSpeed(), statsLeft, scaledHeight - statsHeight - 10, 0xffffffff);
-        RenderUtils.drawStringRight(font, ps, "ATT " + state.getAttack(), statsLeft, scaledHeight - statsHeight - 20, 0xffffffff);
+        RenderUtils.drawStringRight(font, ps, getStatString("ATT ", state, StatType.ATTACK, StatType.ATTACK_BOOST), statsLeft, scaledHeight - statsHeight - 20, 0xffffffff);
+        RenderUtils.drawStringRight(font, ps, getStatString("SPD ", state, StatType.SPEED, StatType.SPEED_BOOST), statsLeft, scaledHeight - statsHeight - 10, 0xffffffff);
+        RenderUtils.drawStringRight(font, ps,getStatString("VIT ", state, StatType.VITALITY, StatType.VITALITY_BOOST), statsLeft, scaledHeight - statsHeight, 0xffffffff);
 
-        font.drawShadow(ps, "DEF " + state.getDefense(), statsRight, scaledHeight - statsHeight, 0xffffffff);
-        font.drawShadow(ps, "DEX " + state.getDexterity(), statsRight, scaledHeight - statsHeight - 10, 0xffffffff);
-        font.drawShadow(ps, "WIS " + state.getWisdom(), statsRight, scaledHeight - statsHeight - 20, 0xffffffff);
+        font.drawShadow(ps, getStatString("DEF ", state, StatType.DEFENSE, StatType.DEFENSE_BOOST), statsRight, scaledHeight - statsHeight - 20, 0xffffffff);
+        font.drawShadow(ps, getStatString("DEX ", state, StatType.DEXTERITY, StatType.DEXTERITY_BOOST), statsRight, scaledHeight - statsHeight - 10, 0xffffffff);
+        font.drawShadow(ps, getStatString("WIS ", state, StatType.WISDOM, StatType.WISDOM_BOOST), statsRight, scaledHeight - statsHeight, 0xffffffff);
 
         List<ConditionEffect> effectList = state.getAllEffects();
         if(!mc.options.renderDebug) {
@@ -87,6 +88,28 @@ public class HUDHotbar {
                 font.drawShadow(ps, name, scaledWidth - font.width(name) - 5, scaledHeight - 25 - i * 15, color);
             }
         }
+    }
+
+    public static String getStatString(String prefix, GameObjectState state, StatType stat, StatType boostType){
+        int statVal = state.<Integer>getStat(stat);
+        int boostVal = state.<Integer>getStat(boostType);
+        String str = prefix + statVal;
+
+        int toMax = state.getGameObject().maxStats.get(stat) - (statVal - boostVal);
+        if(toMax == 0){
+            str = ChatFormatting.YELLOW + str;
+        }
+        if(boostVal != 0){
+            str = ChatFormatting.GREEN + str + " (" + (boostVal > 0 ? "+" : "") + boostVal + ")";
+        }
+        if(toMax > 0){
+            if(stat == StatType.MAX_HP || stat == StatType.MAX_MP){
+                toMax = (int)Math.ceil(toMax/5f);
+            }
+            str += " | " + toMax;
+        }
+
+        return str;
     }
 
 }

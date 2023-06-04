@@ -16,34 +16,37 @@ public class HUDBars {
 
         int type = overlayType.equals(RenderHUD.HEALTH) ? 0 : overlayType.equals(RenderHUD.FOOD) ? 1 : 2;
         int valMin, valMax, color;
-        String typeName;
-        switch (type){
-            case 0:
+        String typeName, customText = null;
+        switch (type) {
+            case 0 -> {
                 valMin = state.getHP();
                 valMax = state.getHPMax();
                 color = 0xffff0000;
                 typeName = "HP";
-                break;
-            case 1:
+                customText = HUDHotbar.getStatString(valMin + "/", state, StatType.MAX_HP, StatType.MAX_HP_BOOST);
+            }
+            case 1 -> {
                 valMin = state.getMP();
                 valMax = state.getMPMax();
                 color = 0xff5555ff;
                 typeName = "MP";
-                break;
-            default:
+                customText = HUDHotbar.getStatString(valMin + "/", state, StatType.MAX_MP, StatType.MAX_MP_BOOST);
+            }
+            default -> {
                 int level = state.<Integer>getStat(StatType.LEVEL);
                 boolean maxLevel = level == 20;
-                if(!maxLevel){
+                if (!maxLevel) {
                     valMin = Integer.parseInt(state.getStat(StatType.EXP));
                     valMax = state.<Integer>getStat(StatType.NEXT_LEVEL_EXP);
                     color = 0xff_00_d0_00;
                     typeName = "Level " + level;
-                }else {
+                } else {
                     valMin = state.<Integer>getStat(StatType.CURR_FAME);
                     valMax = state.<Integer>getStat(StatType.NEXT_CLASS_QUEST_FAME);
                     color = 0xffe67600;
                     typeName = "Fame";
                 }
+            }
         }
         PoseStack stack = e.getPoseStack();
         stack.pushPose();
@@ -53,7 +56,7 @@ public class HUDBars {
         GuiComponent.fill(stack, left, top, left + eachWidth, top + 12, 0x55000000);
         GuiComponent.fill(stack, left, top, left + barWidth, top + 12, color);
         RenderUtils.drawStringOutline(font, stack, typeName,left + eachWidth/2f - font.width(typeName)/2f, top - 10, 0xffffffff, 0);
-        String text = valMax == -1 ? valMin + "" : valMin + "/" + valMax;
+        String text = customText != null ? customText : valMax == -1 ? String.valueOf(valMin) : valMin + "/" + valMax;
         font.drawShadow(stack, text, left + eachWidth/2f - font.width(text)/2f, top + 2, 0xffffffff);
         stack.popPose();
     }
