@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.tiffit.realmnetapi.api.event.DamageEvent;
 import net.tiffit.realmnetapi.api.event.EnemyHitEvent;
+import net.tiffit.realmnetapi.api.event.GroundDamageEvent;
 import net.tiffit.realmnetapi.api.event.PlayerShootEvent;
 import net.tiffit.realmnetapi.assets.xml.GameObject;
 import net.tiffit.realmnetapi.map.RMap;
@@ -78,6 +79,18 @@ public class SoundEventHandler {
                 }
             }
         }
+    }
+
+    public static void handleGroundDamage(GroundDamageEvent groundDamageEvent){
+        RMap map = Rotcg.ACTIVE_CONNECTION.map;
+        String sound = map.getSelfState().getGameObject().hitSound;
+        ResourceLocation rl = new RotCGResourceLocation(sound.toLowerCase().replaceAll("/", "."));
+        TickExecutor.addClient(() -> {
+            Minecraft mc = Minecraft.getInstance();
+            assert mc.player != null;
+            mc.getSoundManager().play(new SimpleSoundInstance(rl, SoundSource.HOSTILE, 1, 1, src,
+                    false, 0, SoundInstance.Attenuation.LINEAR, mc.player.getX(), mc.player.getY(), mc.player.getZ(), false));
+        });
     }
 
 }

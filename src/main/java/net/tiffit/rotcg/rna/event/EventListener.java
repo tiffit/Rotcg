@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -107,11 +106,13 @@ public class EventListener {
         eh.addListener(QueueInformationEvent.class, ReconnectEventHandler::handleQueue);
         eh.addListener(PlayerDataEvent.class, playerDataEvent -> updateInventory = true);
         eh.addListener(ChatEvent.class, ChatEventHandler::handle);
+        eh.addListener(NotificationEvent.class, ChatEventHandler::handleNotification);
         eh.addListener(ShowEffectEvent.class, ShowEffectEventHandler::handle);
         eh.addListener(AoeEvent.class, AoeEventHandler::handle);
         eh.addListener(EnemyHitEvent.class, SoundEventHandler::handleEnemyHit);
         eh.addListener(PlayerShootEvent.class, SoundEventHandler::handlePlayerShoot);
         eh.addListener(DamageEvent.class, SoundEventHandler::handleDamage);
+        eh.addListener(GroundDamageEvent.class, SoundEventHandler::handleGroundDamage);
         eh.addListener(DeathEvent.class, DeathEventHandler::handle);
 
         hooks.ShootDecider = new IShootDecider() {
@@ -206,10 +207,12 @@ public class EventListener {
                         bps *= 1.5;
                     }
                     bps *= 1000;
-                    Block belowBlock = player.getLevel().getBlockState(new BlockPos(player.getX(), 64, player.getZ())).getBlock();
-                    if (belowBlock instanceof GroundBlock groundBlock) {
-                        Ground ground = groundBlock.ground;
-                        bps *= ground.speed;
+                    BlockPos playerPos = new BlockPos(player.getX(), 64, player.getZ());
+                    Ground playerGround = map.getTile(playerPos.getX(), playerPos.getZ());
+                    if (playerGround != null) {
+                        RObject playerStaticObject = map.getStaticGameObject(playerPos.getX(), playerPos.getZ());
+                        if(playerStaticObject == null || !playerStaticObject.getGameObject().protectFromSink)
+                            bps *= playerGround.speed;
                     }
                     AttributeInstance attrib = player.getAttribute(Attributes.MOVEMENT_SPEED);
                     attrib.setBaseValue(MoveSpeedUtil.bpsToMoveSpeed(bps));

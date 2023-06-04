@@ -1,11 +1,13 @@
 package net.tiffit.rotcg.rna.event;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.client.GuiMessageTag;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.*;
 import net.tiffit.realmnetapi.api.event.ChatEvent;
+import net.tiffit.realmnetapi.api.event.NotificationEvent;
+import net.tiffit.realmnetapi.net.packet.in.NotificationPacketIn;
 import net.tiffit.realmnetapi.net.packet.in.TextPacketIn;
 import net.tiffit.realmnetapi.util.LangLoader;
 import net.tiffit.rotcg.Rotcg;
@@ -44,7 +46,7 @@ public class ChatEventHandler {
             ChatFormatting nameColor = packet.isSupporter ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_GREEN;
             if (name.startsWith("#")) nameColor = ChatFormatting.GOLD;
             String nameText = name.isEmpty() ? "" : nameColor + "<" + (name.startsWith("#") ? name.substring(1) : name) + "> ";
-            if (numStars < 0) text = LangLoader.format(text);
+            if (numStars < 0)text = LangLoader.format(text);
             sendText += nameText + ChatFormatting.RESET + text;
 
             if (name.trim().isEmpty())
@@ -55,6 +57,42 @@ public class ChatEventHandler {
             comp.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/ignore " + name)));
         }
         Rotcg.SERVER_PLAYER.sendSystemMessage(comp);
+    }
+
+    private static final MessageSignature QUEUE_SIGNATURE = new MessageSignature("QUEUE".getBytes());
+
+    public static void handleNotification(NotificationEvent notificationEvent){
+        NotificationPacketIn packet = notificationEvent.packet();
+        Minecraft mc = Minecraft.getInstance();
+        switch (packet.type) {
+            case StatIncrease -> {
+            }
+            case ServerMessage -> {
+            }
+            case ErrorMessage -> {
+            }
+            case KeepMessage -> {
+            }
+            case Queue -> {
+                MutableComponent comp = packet.queuePos == -1 ? Component.literal("You have left the queue!") :
+                        Component.literal("Queue Position: " + packet.queuePos);
+                ChatComponent chat = mc.gui.getChat();
+                chat.deleteMessage(QUEUE_SIGNATURE);
+                chat.addMessage(comp.withStyle(ChatFormatting.YELLOW), QUEUE_SIGNATURE, GuiMessageTag.system());
+            }
+            case Death -> {
+            }
+            case DungeonOpened -> {
+            }
+            case TeleportationError -> mc.gui.setOverlayMessage(Component.literal(LangLoader.format(packet.message)).withStyle(ChatFormatting.RED), false);
+            case DungeonCall -> {
+                String[] messageSplit = packet.message.split(";", 2);
+                MutableComponent msg = Component.literal(ChatFormatting.DARK_AQUA + "<" + messageSplit[0] + "> " + LangLoader.format(messageSplit[1]));
+                msg.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/tp " + messageSplit[0])));
+                assert mc.player != null;
+                mc.player.sendSystemMessage(msg);
+            }
+        }
     }
 
 }
