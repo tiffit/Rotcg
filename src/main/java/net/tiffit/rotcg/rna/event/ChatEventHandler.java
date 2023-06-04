@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class ChatEventHandler {
 
     private static final Pattern SPAM_FILTER = Pattern.compile(
-            "(\\\\GOODS COM)|(Realm\\$tock com)|(RE/\\\\LMB)|(realm\\$hop info)|(RPG RIP)|(RealmBaron)|(RBRN)",
+            "(\\\\GOODS COM)|(Realm\\$tock com)|(RE/\\\\LMB)|(realm\\$hop info)|(RPG RIP)|(RealmBaron)|(RBRN)|(O\\.R\\.Y\\.X\\.S\\.H\\.O\\.P)",
             Pattern.CASE_INSENSITIVE);
 
     public static void handle(ChatEvent chatEvent){
