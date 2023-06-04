@@ -13,7 +13,7 @@ import java.awt.*;
 
 public class LineEffect extends RotMGEffect {
 
-    private ParticleOptions data;
+    private final ParticleOptions data;
     public LineEffect(int targetObjectId, Vec2f start, Vec2f end, int color, double duration) {
         super(targetObjectId, start, end, color, duration);
         Color c = new Color(this.color);
@@ -24,8 +24,9 @@ public class LineEffect extends RotMGEffect {
     public void onCreate() {
         Minecraft mc = Minecraft.getInstance();
         RealmNetworker net = Rotcg.ACTIVE_CONNECTION;
-        Vec2f end = null;
+        Vec2f end;
         if(targetObjectId == net.map.getObjectId()){
+            assert mc.player != null;
             end = new Vec2f((float) mc.player.getX(), (float) mc.player.getZ());
         }else if(net.map.getEntityList().has(targetObjectId)){
             RObject entity = net.map.getEntityList().get(targetObjectId);
@@ -42,6 +43,7 @@ public class LineEffect extends RotMGEffect {
         for(int i = 0; i < amount; i++){
             double x = start.x() + dx*i;
             double y = start.y() + dy*i;
+            assert mc.level != null;
             mc.level.addParticle(data, x, 66, y, 0, 0, 0);
         }
     }

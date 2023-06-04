@@ -39,7 +39,7 @@ public abstract class RotMGEffect {
         BURST_EFFECT_TYPE(8, BurstEffect.class),
         FLOW_EFFECT_TYPE(9),
         RING_EFFECT_TYPE(10),
-        LIGHTNING_EFFECT_TYPE(11),
+        LIGHTNING_EFFECT_TYPE(11, LineEffect.class),
         COLLAPSE_EFFECT_TYPE(12),
         CONEBLAST_EFFECT_TYPE(13),
         JITTER_EFFECT_TYPE(14),
