@@ -159,6 +159,9 @@ public class MoveableSlotScreen extends Screen {
         }
 
         private int getPacketSlot(){
+            if(slotId >= StatType.BACKPACK_0.id){
+                return slotId - StatType.BACKPACK_0.id + 12;
+            }
             return slotId - StatType.INVENTORY_0.id;
         }
     }
