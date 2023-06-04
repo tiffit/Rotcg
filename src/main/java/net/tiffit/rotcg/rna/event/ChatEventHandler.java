@@ -12,7 +12,15 @@ import net.tiffit.realmnetapi.net.packet.in.TextPacketIn;
 import net.tiffit.realmnetapi.util.LangLoader;
 import net.tiffit.rotcg.Rotcg;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ChatEventHandler {
+
+    private static final Pattern SPAM_FILTER = Pattern.compile(
+            "(\\\\GOODS COM)|(Realm\\$tock com)|(RE/\\\\LMB)|(realm\\$hop info)|(RPG RIP)|(RealmBaron)|(RBRN)",
+            Pattern.CASE_INSENSITIVE);
+
     public static void handle(ChatEvent chatEvent){
         String sendText = "";
         TextPacketIn packet = chatEvent.packet();
@@ -22,6 +30,10 @@ public class ChatEventHandler {
             name = name.split(",")[0];
         }
         String text = packet.text;
+        Matcher spamMatcher = SPAM_FILTER.matcher(text);
+        if(spamMatcher.find()){
+            return;
+        }
         if (numStars >= 0) {
             ChatFormatting starColor = numStars <= 14 ? ChatFormatting.BLUE :
                     numStars <= 29 ? ChatFormatting.DARK_BLUE :
