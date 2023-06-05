@@ -99,7 +99,7 @@ public class ChatEventHandler {
             case TeleportationError -> mc.gui.setOverlayMessage(Component.literal(LangLoader.format(packet.message)).withStyle(ChatFormatting.RED), false);
             case DungeonCall -> {
                 String[] messageSplit = packet.message.split(";", 2);
-                MutableComponent msg = Component.literal(ChatFormatting.DARK_AQUA + "<" + messageSplit[0] + "> " + LangLoader.format(messageSplit[1]));
+                MutableComponent msg = Component.literal(ChatFormatting.DARK_AQUA + "<" + messageSplit[0].split(",")[0] + "> " + LangLoader.format(messageSplit[1]));
                 msg.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/tp " + messageSplit[0])));
                 assert mc.player != null;
                 mc.player.sendSystemMessage(msg);
