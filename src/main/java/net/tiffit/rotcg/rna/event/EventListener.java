@@ -160,8 +160,7 @@ public class EventListener {
             long totalMem = Runtime.getRuntime().totalMemory();
             long freeMem = Runtime.getRuntime().freeMemory();
             long currentUse = totalMem - freeMem;
-            Rotcg.SERVER_PLAYER.sendSystemMessage(Component.literal(ChatFormatting.RED + "[RotCG] " + ChatFormatting.RESET +
-                    "System: " + bytesToMegabytes(maxMem) + "Mb, Allocating: " + bytesToMegabytes(totalMem) + "Mb, Using: " + bytesToMegabytes(currentUse) + "Mb"));
+            Rotcg.LOGGER.debug("System: " + bytesToMegabytes(maxMem) + "Mb, Allocating: " + bytesToMegabytes(totalMem) + "Mb, Using: " + bytesToMegabytes(currentUse) + "Mb");
         });
     }
 
