@@ -66,7 +66,7 @@ public class ChatEventHandler {
         }
         MutableComponent comp = Component.literal(sendText);
         if(!name.isEmpty()){
-            comp.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/ignore " + name)));
+            comp.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ":/tp " + name)));
         }
         Rotcg.SERVER_PLAYER.sendSystemMessage(comp);
     }
