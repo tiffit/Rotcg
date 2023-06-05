@@ -27,7 +27,7 @@ public class Minimap {
     private final int id = mapIdCounter++;
 
     private final RMap map;
-    private NativeImage mapImage;
+    private final NativeImage mapImage;
     private DynamicTexture dynamicTexture;
     public ResourceLocation mapRL;
 

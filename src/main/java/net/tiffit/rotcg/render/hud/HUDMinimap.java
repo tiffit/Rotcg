@@ -46,7 +46,8 @@ public class HUDMinimap {
             GameObjectState entityState = entity.getState();
             GameObject go = entityState.getGameObject();
             if(go == null)continue;
-            if(go.enemy && !go.staticObject && !go.enemyOccupySquare && go.size >= 1)color = 0xffff0000;
+            if(go.enemy && !go.staticObject && !go.enemyOccupySquare && go.size >= 1 && !go.noMinimap)
+                color = go.color == 0 ? 0xffff0000 : (0xff_000000 + go.color);
             else if(go.player)color = 0xffebe134;
             else continue;
             minimap.renderDot(ps, entity.getCorrectedX(), entity.getCorrectedY(), color);
